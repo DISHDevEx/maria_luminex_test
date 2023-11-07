@@ -50,7 +50,7 @@ jobs:
             --no-verify-ssl &>/dev/null
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: instance-id
-          path: git@github.com:DISHDevEx/maria_luminex_test//.github/workflows/instance-id.txt
+          path: https://github.com/DISHDevEx/maria_luminex_test/blob/main/.github/instance-id.txt
