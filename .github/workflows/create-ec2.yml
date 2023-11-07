@@ -53,4 +53,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: instance-id
-          path: ${{ git@github.com:DISHDevEx/maria_luminex_test.git }}/instance-id
+          path: git@github.com:DISHDevEx/maria_luminex_test//.github/workflows/instance-id.txt
