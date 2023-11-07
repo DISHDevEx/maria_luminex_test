@@ -23,12 +23,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
-          role-session-name: samplerolesession
-          aws-region: ${{ env.AWS_REGION }}
+#      - name: configure aws credentials
+#        uses: aws-actions/configure-aws-credentials@v2
+#        with:
+#          role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
+#          role-session-name: samplerolesession
+#          aws-region: ${{ env.AWS_REGION }}
+      - name: Configure AWS credentials
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set region ${{ secrets.AWS_REGION }}
+
       - name: Create EC2 instance
         run: |
           aws ec2 run-instances \
@@ -42,8 +48,3 @@ jobs:
             --iam-instance-profile Name=${{ secrets.IAM_INSTANCE_PROFILE }} \
             --count 1 \
             --no-verify-ssl &>/dev/null
-
-      - name: Destroy EC2 instance
-        run: |
-          instance_id=$(jq -r '.Instances[0].InstanceId' <<< ${{ steps.create-instance.outputs.run-instances-response }} || echo "")          
-          aws ec2 terminate-instances --instance-ids $instance_id
