@@ -45,5 +45,5 @@ jobs:
 
       - name: Destroy EC2 instance
         run: |
-            instance_id=$(jq -r '.Instances[0].InstanceId' <<< ${{ steps.create-instance.outputs.run-instances-response }})
-            aws ec2 terminate-instances --instance-ids $instance_id
+          instance_id=$(jq -r '.Instances[0].InstanceId' <<< ${{ steps.create-instance.outputs.run-instances-response }} || echo "")          
+          aws ec2 terminate-instances --instance-ids $instance_id
