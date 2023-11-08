@@ -50,6 +50,11 @@ jobs:
             --no-verify-ssl &>/dev/null
           instance_id=$(aws ec2 run-instances ... | jq -r '.Instances[0].InstanceId')
           echo "INSTANCE_ID=$instance_id" >> $GITHUB_ENV
+
+      - name: Use Instance ID
+        run: |
+          echo "The instance ID is $INSTANCE_ID"
+
 #      - name: Save Instance ID
 #        run: |
 #          # Replace this command with how you obtain the instance ID in your workflow
