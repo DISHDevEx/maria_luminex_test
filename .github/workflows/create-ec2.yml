@@ -48,15 +48,17 @@ jobs:
             --iam-instance-profile Name=${{ secrets.IAM_INSTANCE_PROFILE }} \
             --count 1 \
             --no-verify-ssl &>/dev/null
-      - name: Save Instance ID
-        run: |
-          # Replace this command with how you obtain the instance ID in your workflow
           instance_id=$(aws ec2 run-instances ... | jq -r '.Instances[0].InstanceId')
-          echo "::set-output name=instance_id::$instance_id"
-        id: instance_id
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: instance-id
-          path: ${{ steps.instance_id.outputs.instance_id }}
+          echo "INSTANCE_ID=$instance_id" >> $GITHUB_ENV
+#      - name: Save Instance ID
+#        run: |
+#          # Replace this command with how you obtain the instance ID in your workflow
+#          instance_id=$(aws ec2 run-instances ... | jq -r '.Instances[0].InstanceId')
+#          echo "::set-output name=instance_id::$instance_id"
+#        id: instance_id
+#
+#      - name: Upload Artifact
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: instance-id
+#          path: ${{ steps.instance_id.outputs.instance_id }}
