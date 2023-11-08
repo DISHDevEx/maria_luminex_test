@@ -52,6 +52,7 @@ jobs:
           echo "INSTANCE_ID=$instance_id" >> $GITHUB_ENV
 
       - name: Use Instance ID
+        needs: Create EC2 instance
         run: |
           echo "The instance ID is $INSTANCE_ID"
 
