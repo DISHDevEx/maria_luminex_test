@@ -3,7 +3,7 @@
 name: Create new EC2 instance
 
 on:
-  workflow_dispatch:
+  repository_dispatch:
     inputs:
       ec2_name:
         description: 'Enter name of the EC2'
@@ -23,6 +23,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - run: echo "Triggering creation of EC2 Instance"
+      - name: Checkout
+        uses: actions/checkout@v2
+        
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -48,13 +52,13 @@ jobs:
             --iam-instance-profile Name=${{ secrets.IAM_INSTANCE_PROFILE }} \
             --count 1 \
             --no-verify-ssl &>/dev/null
-          instance_id=$(aws ec2 run-instances ... | jq -r '.Instances[0].InstanceId')
-          echo "INSTANCE_ID=$instance_id" >> $GITHUB_ENV
+      #     instance_id=$(aws ec2 run-instances ... | jq -r '.Instances[0].InstanceId')
+      #     echo "INSTANCE_ID=$instance_id" >> $GITHUB_ENV
 
-      - name: Use Instance ID
-        needs: Create EC2 instance
-        run: |
-          echo "The instance ID is $INSTANCE_ID"
+      # - name: Use Instance ID
+      #   needs: Create EC2 instance
+      #   run: |
+      #     echo "The instance ID is $INSTANCE_ID"
 
 #      - name: Save Instance ID
 #        run: |
