@@ -23,9 +23,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Triggering creation of EC2 Instance"
-      - name: Checkout
-        uses: actions/checkout@v2
+      # - run: echo "Triggering creation of EC2 Instance"
+      # - name: Checkout
+      #   uses: actions/checkout@v2
         
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v2
