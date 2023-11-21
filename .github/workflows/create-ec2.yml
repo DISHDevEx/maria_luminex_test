@@ -1,10 +1,8 @@
-#This workflow is used to create a new EC2 instance in the AWS 'us-east-1' region
-#
+# This workflow is used to create a new EC2 instance in the AWS 'us-east-1' region
 name: Create new EC2 instance
 
 on:
   workflow_dispatch:
-    # types: [create-ec2]
     inputs:
       ec2_name:
         description: 'Enter name of the EC2'
@@ -13,23 +11,18 @@ on:
         description: 'Enter AMI id for the EC2'
         required: true
       instance_type:
-        description: 'Enter EC2 instance type(Eg: t3.small)'
+        description: 'Enter EC2 instance type (e.g., t3.small)'
         required: true
+
 env:
-  AWS_REGION : ${{ secrets.AWS_REGION }}
-# permission can be added at job level or workflow level
-# permissions:
-#   id-token: write   # This is required for requesting the JWT
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+
 jobs:
   deployment:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Checkout files
-        run: |
-          ls -l
 
       - name: Configure AWS credentials
         id: creds
@@ -39,27 +32,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ github.event.inputs.AWS_Region || 'us-east-1' }}
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-#     steps:
-#       # - run: echo "Triggering creation of EC2 Instance"
-#       # - name: Checkout
-#       #   uses: actions/checkout@v2
-        
-#       - name: configure aws credentials
-#         uses: aws-actions/configure-aws-credentials@v2
-#         with:
-#           role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
-#           role-session-name: samplerolesession
-#           aws-region: ${{ env.AWS_REGION }}
-#      - name: Configure AWS credentials
-#        run: |
-#          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          aws configure set region ${{ secrets.AWS_REGION }}
 
       - name: Create EC2 instance
+        id: create-ec2
         run: |
           INSTANCE_ID=$(aws ec2 run-instances \
             --image-id ${{ github.event.inputs.ami_id }} \
@@ -70,28 +45,20 @@ jobs:
             --security-group-ids ${{ secrets.SECURITY_GROUP_ID }} \
             --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=github_wf_${{ github.event.inputs.ec2_name }}}]' \
             --iam-instance-profile Name=${{ secrets.IAM_INSTANCE_PROFILE }} \
-            --count 1
-            --no-verify-ssl &>/dev/null)
-          
-          echo "INSTANCE_ID=${INSTANCE_ID}" >> $GITHUB_ENV
-          echo "::set-output name=instance-id::${INSTANCE_ID}" 
-      #     instance_id=$(aws ec2 run-instances ... | jq -r '.Instances[0].InstanceId')
-      #     echo "INSTANCE_ID=$instance_id" >> $GITHUB_ENV
+            --count 1 \
+            --query 'Instances[0].InstanceId' \
+            --output text)
 
-      # - name: Use Instance ID
-      #   needs: Create EC2 instance
-      #   run: |
-      #     echo "The instance ID is $INSTANCE_ID"
+          echo "::set-output name=id::${INSTANCE_ID}"
 
-#      - name: Save Instance ID
-#        run: |
-#          # Replace this command with how you obtain the instance ID in your workflow
-#          instance_id=$(aws ec2 run-instances ... | jq -r '.Instances[0].InstanceId')
-#          echo "::set-output name=instance_id::$instance_id"
-#        id: instance_id
-#
-#      - name: Upload Artifact
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: instance-id
-#          path: ${{ steps.instance_id.outputs.instance_id }}
+      - name: Save Instance ID to File
+        run: echo "${{ steps.create-ec2.outputs.id }}" > instance_id.txt
+
+      - name: Commit and Push Instance ID File
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add instance_id.txt
+          git commit -m "Add instance ID file"
+          git push
+
