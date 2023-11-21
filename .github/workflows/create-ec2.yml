@@ -72,8 +72,7 @@ jobs:
             --iam-instance-profile Name=${{ secrets.IAM_INSTANCE_PROFILE }} \
             --count 1 \
             --no-verify-ssl &>/dev/null
-            --query 'Instances[0].InstanceId' \
-            --output text)
+            --output json | grep -oP '"InstanceId": "\K[^"]+')
 
           echo "INSTANCE_ID=${INSTANCE_ID}" >> $GITHUB_ENV  
       #     instance_id=$(aws ec2 run-instances ... | jq -r '.Instances[0].InstanceId')
