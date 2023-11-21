@@ -18,22 +18,41 @@ on:
 env:
   AWS_REGION : ${{ secrets.AWS_REGION }}
 # permission can be added at job level or workflow level
-permissions:
-  id-token: write   # This is required for requesting the JWT
+# permissions:
+#   id-token: write   # This is required for requesting the JWT
 jobs:
-  build:
+  deployment:
     runs-on: ubuntu-latest
     steps:
-      # - run: echo "Triggering creation of EC2 Instance"
-      # - name: Checkout
-      #   uses: actions/checkout@v2
-        
-      - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Checkout files
+        run: |
+          ls -l
+
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
-          role-session-name: samplerolesession
-          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ github.event.inputs.AWS_Region || 'us-east-1' }}
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       # - run: echo "Triggering creation of EC2 Instance"
+#       # - name: Checkout
+#       #   uses: actions/checkout@v2
+        
+#       - name: configure aws credentials
+#         uses: aws-actions/configure-aws-credentials@v2
+#         with:
+#           role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
+#           role-session-name: samplerolesession
+#           aws-region: ${{ env.AWS_REGION }}
 #      - name: Configure AWS credentials
 #        run: |
 #          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
