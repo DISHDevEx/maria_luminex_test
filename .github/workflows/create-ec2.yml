@@ -73,7 +73,7 @@ jobs:
             --count 1 | grep "InstanceId" | cut -d'"' -f4)
             --no-verify-ssl &>/dev/null
           
-          echo "INSTANCE_ID=${INSTANCE_ID}" >> $GITHUB_ENV  
+          echo "INSTANCE_ID=${INSTANCE_ID}" 
       #     instance_id=$(aws ec2 run-instances ... | jq -r '.Instances[0].InstanceId')
       #     echo "INSTANCE_ID=$instance_id" >> $GITHUB_ENV
 
