@@ -70,10 +70,9 @@ jobs:
             --security-group-ids ${{ secrets.SECURITY_GROUP_ID }} \
             --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=github_wf_${{ github.event.inputs.ec2_name }}}]' \
             --iam-instance-profile Name=${{ secrets.IAM_INSTANCE_PROFILE }} \
-            --count 1 \
+            --count 1 | grep "InstanceId" | cut -d'"' -f4)
             --no-verify-ssl &>/dev/null
-            --output json | grep -oP '"InstanceId": "\K[^"]+')
-
+          
           echo "INSTANCE_ID=${INSTANCE_ID}" >> $GITHUB_ENV  
       #     instance_id=$(aws ec2 run-instances ... | jq -r '.Instances[0].InstanceId')
       #     echo "INSTANCE_ID=$instance_id" >> $GITHUB_ENV
