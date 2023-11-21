@@ -71,7 +71,7 @@ jobs:
             --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=github_wf_${{ github.event.inputs.ec2_name }}}]' \
             --iam-instance-profile Name=${{ secrets.IAM_INSTANCE_PROFILE }} \
             --count 1
-            --no-verify-ssl &>/dev/null
+            --no-verify-ssl &>/dev/null)
           
           echo "INSTANCE_ID=${INSTANCE_ID}" >> $GITHUB_ENV
           echo "::set-output name=instance-id::${INSTANCE_ID}" 
