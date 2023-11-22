@@ -38,7 +38,7 @@ jobs:
       - name: Deploy EMR cluster
         run: |
           stack_id=$(aws cloudformation create-stack \
-            --stack-name ${{ github.event.client_payload.inputs.stack-name }} \
+            --stack-name testing-cft-template-parameterupdatedx \
             --template-body file://./infrastructure/create-emr-cft.yml \
             --parameters file://./infrastructure/config_parameter.json \
             --role-arn arn:aws:iam::355648722862:role/dish-dp-CICDAcctCodePipelineCloudFormationRole\
@@ -48,7 +48,7 @@ jobs:
 
       - name: Wait for stack creation completion
         run: |
-          aws cloudformation wait stack-create-complete --stack-name ${{ github.event.client_payload.inputs.stack-name }}
+          aws cloudformation wait stack-create-complete --stack-name testing-cft-template-parameterupdatedx
 
       - name: Get Cluster ID from CloudFormation Stack
         run: |
