@@ -53,7 +53,7 @@ jobs:
       - name: Extract EMR Cluster ID
         id: extract-cluster-id
         run: |
-            emr_cluster_id=$(aws cloudformation describe-stacks --stack-name ${{ github.event.inputs.stack-name }} \
+            emr_cluster_id=$(aws cloudformation describe-stacks --stack-name testing-cft-template-parameterupdatedx \
               | jq -r '.Stacks[0].Outputs[] | select(.OutputKey == "EMRClusterIdOutput") | .OutputValue')
             echo "EMR Cluster ID: $emr_cluster_id"
         shell: bash
