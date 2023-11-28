@@ -1,0 +1,31 @@
+name: Run Python Script in Cluster
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-etl:
+    runs-on: ubuntu-latest
+    needs: create-emr.deployment
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        run: |
+          pip install -r ../../config/requirements.txt 
+
+      - name: Navigate to script folder
+        run: cd ../luminex
+
+      - name: Run Python script
+        env:
+          CLUSTER_ID: ${{ needs.create-emr.deployment.outputs.emr-cluster-id}}
+        run: |
+          python run_etl.py
