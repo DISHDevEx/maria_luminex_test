@@ -30,4 +30,6 @@ jobs:
 
       - name: Terminate EMR cluster
         run: |
-          aws emr terminate-clusters --cluster-ids ${{ needs.start.outputs.emr-cluster-id }}
+          cluster_id="${{ needs.start.outputs.emr-cluster-id }}"
+          aws emr terminate-clusters --cluster-ids "$cluster_id"
+
