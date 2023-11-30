@@ -1,0 +1,44 @@
+name: Run Python Script in Cluster
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-etl:
+    runs-on: ubuntu-latest
+    needs: create-emr.deployment
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Set inputs from previous workflow
+        id: set-inputs
+#        env:
+#          CLUSTER_ID: ${{ needs.create-emr.deployment.outputs.emr-cluster-id}}
+        run: |
+            echo "EMR_CLUSTER_ID=${{ needs.create-emr.deployment.outputs.emr-cluster-id }}" >> $GITHUB_ENV
+
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ github.event.inputs.AWS_Region || 'us-east-1' }}
+
+      - name: Install dependencies
+        run: |
+          pip install -r ../../config/requirements.txt 
+
+      - name: Run Python script
+        run: |
+          # Set environment variable
+          export EMR_CLUSTER_ID="${{ env.EMR_CLUSTER_ID }}"
+          python ../python/run_etl.py $EMR_CLUSTER_ID
