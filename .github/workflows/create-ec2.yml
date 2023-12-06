@@ -2,7 +2,9 @@
 name: Create new EC2 instance
 
 on:
-  workflow_dispatch:
+  repository_dispatch:
+    types: [create-ec2]
+    
     inputs:
       ec2_name:
         description: 'Enter name of the EC2'
@@ -28,17 +30,17 @@ jobs:
         id: creds
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-access-key-id: ${{ github.event.client_payload.inputs.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ github.event.client_payload.inputs.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ github.event.client_payload.inputs.AWS_SESSION_TOKEN }}
           aws-region: ${{ github.event.inputs.AWS_Region || 'us-east-1' }}
 
       - name: Create EC2 instance
         id: create-ec2
         run: |
           INSTANCE_ID=$(aws ec2 run-instances \
-            --image-id ${{ github.event.inputs.ami_id }} \
-            --instance-type ${{ github.event.inputs.instance_type }} \
+            --image-id ${{ github.event.client_payload.inputs.ami_id }} \
+            --instance-type ${{ github.event.client_payload.inputs.instance_type }} \
             --key-name '${{ secrets.KEY_PAIR_NAME }}' \
             --region us-east-1 \
             --subnet-id ${{ secrets.SUBNET_ID }} \
