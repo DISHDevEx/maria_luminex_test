@@ -51,7 +51,7 @@ jobs:
             --query 'Instances[0].InstanceId' \
             --output text)
 
-          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+          echo "EMR_CLUSTER_ID=$INSTANCE_ID" >> $GITHUB_ENV
 
       - name: Save Instance ID to File
         run: echo "${{ steps.create-ec2.outputs.id }}" > instance_id.txt
@@ -60,8 +60,8 @@ jobs:
         id: extract-instance-id
         run: |
           # Extract EMR Cluster ID from deployment outputs or logs
-          ec2_cluster_id=$(echo $INSTANCE_ID)
-          echo "EMR Cluster ID: $INSTANCE_ID"
+          ec2_cluster_id=$(echo $EMR_CLUSTER_ID)
+          echo "EMR Cluster ID: $EMR_CLUSTER_ID"
 
       # - name: Commit and Push Instance ID File
       #   run: |
