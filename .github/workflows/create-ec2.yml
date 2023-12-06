@@ -49,16 +49,23 @@ jobs:
             --query 'Instances[0].InstanceId' \
             --output text)
 
-          echo "::set-output name=id::${INSTANCE_ID}"
+          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV"
 
       - name: Save Instance ID to File
         run: echo "${{ steps.create-ec2.outputs.id }}" > instance_id.txt
 
-      - name: Commit and Push Instance ID File
+      - name: Extract EC2 Instance ID
+        id: extract-instance-id
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add instance_id.txt
-          git commit -m "Add instance ID file"
-          git push
+          # Extract EMR Cluster ID from deployment outputs or logs
+          ec2_cluster_id=$(echo $INSTANCE_ID)
+          echo "EMR Cluster ID: $INSTANCE_ID"
+
+      # - name: Commit and Push Instance ID File
+      #   run: |
+      #     git config user.name "GitHub Actions"
+      #     git config user.email "actions@github.com"
+      #     git add instance_id.txt
+      #     git commit -m "Add instance ID file"
+      #     git push
 
