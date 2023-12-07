@@ -51,23 +51,37 @@ jobs:
             --count 1 \
             --query 'Instances[0].InstanceId' \
             --output text)
+
+          InstanceId=$(echo $InstanceId)
+          echo "InstanceId: $InstanceId" >> instance_id.txt
           echo "InstanceId=${InstanceId}" >> $GITHUB_ENV
+
+      - name: Save EC2 Instance ID as output
+        id: save-ec2-instance-id
+        run: echo "InstanceId=$InstanceId" >> $GITHUB_ENV
 
       - name: Save EC2 Instance ID to artifact
         uses: actions/upload-artifact@v2
         with:
           name: InstanceId
-          path: $GITHUB_ENV
-        if: always()    
+          path: instance_id.txt
+        if: always()
 
-      - name: Extract EC2 Instance ID
-        id: extract-instance-id
-        env:
-          InstanceId: ${{ steps.create-ec2.outputs.InstanceId }}
-        run: |
-          # Extract EMR Cluster ID from deployment outputs or logs
-          InstanceId=$(echo $InstanceId)
-          echo "InstanceId: $InstanceId"
+      # - name: Save EC2 Instance ID to artifact
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: InstanceId
+      #     path: $GITHUB_ENV
+      #   if: always()    
+
+      # - name: Extract EC2 Instance ID
+      #   id: extract-instance-id
+      #   env:
+      #     InstanceId: ${{ steps.create-ec2.outputs.InstanceId }}
+      #   run: |
+      #     # Extract EMR Cluster ID from deployment outputs or logs
+      #     InstanceId=$(echo $InstanceId)
+      #     echo "InstanceId: $InstanceId"
 
       # - name: Upload EC2 Instance ID as artifact
       #   uses: actions/upload-artifact@v2
