@@ -39,6 +39,7 @@ jobs:
         id: create-ec2
         run: |
           EMR_CLUSTER_ID=$(aws ec2 run-instances \
+            --ec2_name ${{ github.event.client_payload.inputs.ec2_name }} \
             --image-id ${{ github.event.client_payload.inputs.ami_id }} \
             --instance-type ${{ github.event.client_payload.inputs.instance_type }} \
             --key-name '${{ secrets.KEY_PAIR_NAME }}' \
