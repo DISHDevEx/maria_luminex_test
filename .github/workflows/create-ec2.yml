@@ -64,7 +64,7 @@
        - name: Print Run ID
          id: run_id
          run: |
-           echo "Run ID: ${{ github.run_id }}" >> $GITHUB_ENV
+           echo "Run_ID: ${{ github.run_id }}" >> $GITHUB_ENV
 
        - name: Save Run ID as artifact
          uses: actions/upload-artifact@v2
