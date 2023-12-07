@@ -2,8 +2,9 @@
 name: Create new EC2 instance
 
 on:
-  repository_dispatch:
-    types: [create-ec2]
+  # repository_dispatch:
+  #   types: [create-ec2]
+  workflow_dispatch:
     
     inputs:
       ec2_name:
@@ -51,22 +52,22 @@ jobs:
             --query 'Instances[0].InstanceId' \
             --output text)
 
-          echo "InstanceId=${InstanceId}" >> $GITHUB_OUTPUT
+          $InstanceId > instance_id.txt
 
-      - name: Extract EC2 Instance ID
-        id: extract-instance-id
-        env:
-          InstanceId: ${{ steps.create-ec2.outputs.InstanceId }}
-        run: |
-          # Extract EMR Cluster ID from deployment outputs or logs
-          InstanceId=$(echo $InstanceId)
-          echo "InstanceId: $InstanceId"
+      # - name: Extract EC2 Instance ID
+      #   id: extract-instance-id
+      #   env:
+      #     InstanceId: ${{ steps.create-ec2.outputs.InstanceId }}
+      #   run: |
+      #     # Extract EMR Cluster ID from deployment outputs or logs
+      #     InstanceId=$(echo $InstanceId)
+      #     echo "InstanceId: $InstanceId"
 
       - name: Upload EC2 Instance ID as artifact
         uses: actions/upload-artifact@v2
         with:
           name: ec2-instance-id
-          path: $GITHUB_OUTPUT
+          path: instance_id.txt
 
 
       # - name: Commit and Push Instance ID File
