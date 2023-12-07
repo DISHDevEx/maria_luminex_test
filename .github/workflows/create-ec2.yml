@@ -1,94 +1,98 @@
 # # This workflow is used to create a new EC2 instance in the AWS 'us-east-1' region
-# name: Create new EC2 instance
+ name: Create new EC2 instance
 
-# on:
-#   repository_dispatch:
-#     types: [create-ec2]
-#   # workflow_dispatch:
+ on:
+   repository_dispatch:
+     types: [create-ec2]
+   # workflow_dispatch:
     
-#     inputs:
-#       ec2_name:
-#         description: 'Enter name of the EC2'
-#         required: true
-#       ami_id:
-#         description: 'Enter AMI id for the EC2'
-#         required: true
-#       instance_type:
-#         description: 'Enter EC2 instance type (e.g., t3.small)'
-#         required: true
+     inputs:
+       ec2_name:
+         description: 'Enter name of the EC2'
+         required: true
+       ami_id:
+         description: 'Enter AMI id for the EC2'
+         required: true
+       instance_type:
+         description: 'Enter EC2 instance type (e.g., t3.small)'
+         required: true
 
-# env:
-#   AWS_REGION: ${{ secrets.AWS_REGION }}
+ env:
+   AWS_REGION: ${{ secrets.AWS_REGION }}
 
-# jobs:
-#   deployment:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v4
+ jobs:
+   deployment:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Checkout
+         uses: actions/checkout@v4
 
-#       - name: Configure AWS credentials
-#         id: creds
-#         uses: aws-actions/configure-aws-credentials@v4
-#         with:
-#           aws-access-key-id: ${{ github.event.client_payload.inputs.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ github.event.client_payload.inputs.AWS_SECRET_ACCESS_KEY }}
-          # aws-session-token: ${{ github.event.client_payload.inputs.AWS_SESSION_TOKEN }}
-          # aws-region: ${{ github.event.inputs.AWS_Region || 'us-east-1' }}
+       - name: Configure AWS credentials
+         id: creds
+         uses: aws-actions/configure-aws-credentials@v4
+         with:
+           aws-access-key-id: ${{ github.event.client_payload.inputs.AWS_ACCESS_KEY_ID }}
+           aws-secret-access-key: ${{ github.event.client_payload.inputs.AWS_SECRET_ACCESS_KEY }}
+           aws-session-token: ${{ github.event.client_payload.inputs.AWS_SESSION_TOKEN }}
+           aws-region: ${{ github.event.inputs.AWS_Region || 'us-east-1' }}
 
-      # - name: Create EC2 instance
-      #   id: create-ec2
-      #   run: |
-      #     InstanceId=$(aws ec2 run-instances \
-      #       --image-id ${{ github.event.client_payload.inputs.ami_id }} \
-      #       --instance-type ${{ github.event.client_payload.inputs.instance_type }} \
-      #       --key-name '${{ secrets.KEY_PAIR_NAME }}' \
-      #       --region us-east-1 \
-      #       --subnet-id ${{ secrets.SUBNET_ID }} \
-      #       --security-group-ids ${{ secrets.SECURITY_GROUP_ID }} \
-      #       --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=github_wf_${{ github.event.client_payload.inputs.ec2_name }}}]' \
-      #       --iam-instance-profile Name=${{ secrets.IAM_INSTANCE_PROFILE }} \
-      #       --count 1 \
-      #       --query 'Instances[0].InstanceId' \
-      #       --output text)
+       - name: Create EC2 instance
+         id: create-ec2
+         run: |
+           InstanceId=$(aws ec2 run-instances \
+             --image-id ${{ github.event.client_payload.inputs.ami_id }} \
+             --instance-type ${{ github.event.client_payload.inputs.instance_type }} \
+             --key-name '${{ secrets.KEY_PAIR_NAME }}' \
+             --region us-east-1 \
+             --subnet-id ${{ secrets.SUBNET_ID }} \
+             --security-group-ids ${{ secrets.SECURITY_GROUP_ID }} \
+             --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=github_wf_${{ github.event.client_payload.inputs.ec2_name }}}]' \
+             --iam-instance-profile Name=${{ secrets.IAM_INSTANCE_PROFILE }} \
+             --count 1 \
+             --query 'Instances[0].InstanceId' \
+             --output text)
             
-      #     echo "InstanceId: $InstanceId" >> instance_id.txt  
+           echo "InstanceId: $InstanceId" >> instance_id.txt  
 
-      #  # InstanceId=$(echo $InstanceId)
-      #     # echo "InstanceId=${InstanceId}" >> $GITHUB_ENV
+        # InstanceId=$(echo $InstanceId)
+           # echo "InstanceId=${InstanceId}" >> $GITHUB_ENV
 
-      # # - name: Save EC2 Instance ID as output
-      # #   id: save-ec2-instance-id
-      # #   run: echo "InstanceId=$InstanceId" >> $GITHUB_ENV
+       # - name: Save EC2 Instance ID as output
+       #   id: save-ec2-instance-id
+       #   run: echo "InstanceId=$InstanceId" >> $GITHUB_ENV
 
-      # - name: Save EC2 Instance ID to artifact
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: InstanceId
-      #     path: instance_id.txt
-      #   if: always()
+       - name: Print Run ID
+         run:
+           echo "Run ID: ${{ github.run_id }}"
 
-      # - name: Save EC2 Instance ID to artifact
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: InstanceId
-      #     path: $GITHUB_ENV
-      #   if: always()    
+       - name: Save EC2 Instance ID to artifact
+         uses: actions/upload-artifact@v2
+         with:
+           name: InstanceId
+           path: instance_id.txt
+         if: always()
 
-      # - name: Extract EC2 Instance ID
-      #   id: extract-instance-id
-      #   env:
-      #     InstanceId: ${{ steps.create-ec2.outputs.InstanceId }}
-      #   run: |
-      #     # Extract EMR Cluster ID from deployment outputs or logs
-      #     InstanceId=$(echo $InstanceId)
-      #     echo "InstanceId: $InstanceId"
+       - name: Save EC2 Instance ID to artifact
+         uses: actions/upload-artifact@v2
+         with:
+           name: InstanceId
+           path: $GITHUB_ENV
+         if: always()
 
-      # - name: Upload EC2 Instance ID as artifact
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: ec2-instance-id
-      #     path: instance_id.txt
+       - name: Extract EC2 Instance ID
+         id: extract-instance-id
+         env:
+           InstanceId: ${{ steps.create-ec2.outputs.InstanceId }}
+         run: |
+           # Extract EMR Cluster ID from deployment outputs or logs
+           InstanceId=$(echo $InstanceId)
+           echo "InstanceId: $InstanceId"
+
+       - name: Upload EC2 Instance ID as artifact
+         uses: actions/upload-artifact@v2
+         with:
+           name: ec2-instance-id
+           path: instance_id.txt
 
 
       # - name: Commit and Push Instance ID File
@@ -99,61 +103,61 @@
       #     git commit -m "Add instance ID file"
       #     git push
 # This workflow is used to create a new EC2 instance in the AWS 'us-east-1' region
-name: Create new EC2 instance
-
-on:
-  repository_dispatch:
-    types: [create-ec2]
-    
-    inputs:
-      ec2_name:
-        description: 'Enter name of the EC2'
-        required: true
-      ami_id:
-        description: 'Enter AMI id for the EC2'
-        required: true
-      instance_type:
-        description: 'Enter EC2 instance type (e.g., t3.small)'
-        required: true
-
-env:
-  AWS_REGION: ${{ secrets.AWS_REGION }}
-
-jobs:
-  deployment:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        id: creds
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ github.event.client_payload.inputs.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ github.event.client_payload.inputs.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ github.event.client_payload.inputs.AWS_SESSION_TOKEN }}
-          aws-region: ${{ github.event.inputs.AWS_Region || 'us-east-1' }}
-
-      - name: Create EC2 instance
-        id: create-ec2
-        run: |
-          InstanceId=$(aws ec2 run-instances \
-            --image-id ${{ github.event.client_payload.inputs.ami_id }} \
-            --instance-type ${{ github.event.client_payload.inputs.instance_type }} \
-            --key-name '${{ secrets.KEY_PAIR_NAME }}' \
-            --region us-east-1 \
-            --subnet-id ${{ secrets.SUBNET_ID }} \
-            --security-group-ids ${{ secrets.SECURITY_GROUP_ID }} \
-            --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=github_wf_${{ github.event.client_payload.inputs.ec2_name }}}]' \
-            --iam-instance-profile Name=${{ secrets.IAM_INSTANCE_PROFILE }} \
-            --count 1 \
-            --query 'Instances[0].InstanceId' \
-            --output text)
-          echo "InstanceId=$InstanceId" >> "$GITHUB_ENV"
-      - name: Extract EC2 Instance ID
-        id: extract-instance-id
-        run: |
-          # Extract EMR Cluster ID from deployment outputs or logs
-          InstanceId=$(echo $InstanceId)
-          echo "InstanceId: $InstanceId"
+#name: Create new EC2 instance
+#
+#on:
+#  repository_dispatch:
+#    types: [create-ec2]
+#
+#    inputs:
+#      ec2_name:
+#        description: 'Enter name of the EC2'
+#        required: true
+#      ami_id:
+#        description: 'Enter AMI id for the EC2'
+#        required: true
+#      instance_type:
+#        description: 'Enter EC2 instance type (e.g., t3.small)'
+#        required: true
+#
+#env:
+#  AWS_REGION: ${{ secrets.AWS_REGION }}
+#
+#jobs:
+#  deployment:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#
+#      - name: Configure AWS credentials
+#        id: creds
+#        uses: aws-actions/configure-aws-credentials@v4
+#        with:
+#          aws-access-key-id: ${{ github.event.client_payload.inputs.AWS_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ github.event.client_payload.inputs.AWS_SECRET_ACCESS_KEY }}
+#          aws-session-token: ${{ github.event.client_payload.inputs.AWS_SESSION_TOKEN }}
+#          aws-region: ${{ github.event.inputs.AWS_Region || 'us-east-1' }}
+#
+#      - name: Create EC2 instance
+#        id: create-ec2
+#        run: |
+#          InstanceId=$(aws ec2 run-instances \
+#            --image-id ${{ github.event.client_payload.inputs.ami_id }} \
+#            --instance-type ${{ github.event.client_payload.inputs.instance_type }} \
+#            --key-name '${{ secrets.KEY_PAIR_NAME }}' \
+#            --region us-east-1 \
+#            --subnet-id ${{ secrets.SUBNET_ID }} \
+#            --security-group-ids ${{ secrets.SECURITY_GROUP_ID }} \
+#            --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=github_wf_${{ github.event.client_payload.inputs.ec2_name }}}]' \
+#            --iam-instance-profile Name=${{ secrets.IAM_INSTANCE_PROFILE }} \
+#            --count 1 \
+#            --query 'Instances[0].InstanceId' \
+#            --output text)
+#          echo "InstanceId=$InstanceId" >> "$GITHUB_ENV"
+#      - name: Extract EC2 Instance ID
+#        id: extract-instance-id
+#        run: |
+#          # Extract EMR Cluster ID from deployment outputs or logs
+#          InstanceId=$(echo $InstanceId)
+#          echo "InstanceId: $InstanceId"
