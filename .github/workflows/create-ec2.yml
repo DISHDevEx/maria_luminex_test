@@ -55,6 +55,8 @@ jobs:
 
       - name: Extract EC2 Instance ID
         id: extract-instance-id
+        env:
+          InstanceId: ${{ steps.create-ec2.outputs.InstanceId }}
         run: |
           # Extract EMR Cluster ID from deployment outputs or logs
           InstanceId=$(echo $InstanceId)
