@@ -62,7 +62,8 @@
        #   run: echo "InstanceId=$InstanceId" >> $GITHUB_ENV
 
        - name: Print Run ID
-         run:
+         id: run_id
+         run: |
            echo "Run ID: ${{ github.run_id }}"
 
        - name: Save EC2 Instance ID to artifact
