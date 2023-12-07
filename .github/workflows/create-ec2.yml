@@ -51,14 +51,15 @@ jobs:
             --count 1 \
             --query 'Instances[0].InstanceId' \
             --output text)
+            
+          echo "InstanceId: $InstanceId" >> instance_id.txt  
 
-          InstanceId=$(echo $InstanceId)
-          echo "InstanceId: $InstanceId" >> instance_id.txt
-          echo "InstanceId=${InstanceId}" >> $GITHUB_ENV
+       # InstanceId=$(echo $InstanceId)
+          # echo "InstanceId=${InstanceId}" >> $GITHUB_ENV
 
-      - name: Save EC2 Instance ID as output
-        id: save-ec2-instance-id
-        run: echo "InstanceId=$InstanceId" >> $GITHUB_ENV
+      # - name: Save EC2 Instance ID as output
+      #   id: save-ec2-instance-id
+      #   run: echo "InstanceId=$InstanceId" >> $GITHUB_ENV
 
       - name: Save EC2 Instance ID to artifact
         uses: actions/upload-artifact@v2
