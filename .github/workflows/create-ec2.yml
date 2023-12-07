@@ -51,7 +51,7 @@ jobs:
             --query 'Instances[0].InstanceId' \
             --output text)
 
-          echo "InstanceId=$InstanceId" >> "$GITHUB_ENV"
+          echo "InstanceId=${InstanceId}" >> $GITHUB_OUTPUT
 
       - name: Extract EC2 Instance ID
         id: extract-instance-id
