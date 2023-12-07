@@ -61,10 +61,10 @@
        #   id: save-ec2-instance-id
        #   run: echo "InstanceId=$InstanceId" >> $GITHUB_ENV
 
-       - name: Print Run ID
-         id: run_id
-         run: |
-           echo "Run_ID: ${{ github.run_id }}" >> $GITHUB_ENV
+       - name: Set Run ID as environment variable
+         run: echo "RUN_ID=${{ github.run_id }}" >> $GITHUB_ENV
+         shell: bash
+
 
        - name: Save Run ID as artifact
          uses: actions/upload-artifact@v2
