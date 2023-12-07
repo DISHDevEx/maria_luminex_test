@@ -38,7 +38,7 @@ jobs:
       - name: Create EC2 instance
         id: create-ec2
         run: |
-          EMR_CLUSTER_ID=$(aws ec2 run-instances \
+          InstanceId=$(aws ec2 run-instances \
             --image-id ${{ github.event.client_payload.inputs.ami_id }} \
             --instance-type ${{ github.event.client_payload.inputs.instance_type }} \
             --key-name '${{ secrets.KEY_PAIR_NAME }}' \
@@ -51,17 +51,14 @@ jobs:
             --query 'Instances[0].InstanceId' \
             --output text)
 
-          echo "EMR_CLUSTER_ID=$EMR_CLUSTER_ID" >> "$GITHUB_ENV"
-
-      - name: Save Instance ID to File
-        run: echo "${{ steps.create-ec2.outputs.id }}" > instance_id.txt
+          echo "InstanceId=$InstanceId" >> "$GITHUB_ENV"
 
       - name: Extract EC2 Instance ID
         id: extract-instance-id
         run: |
           # Extract EMR Cluster ID from deployment outputs or logs
-          ec2_cluster_id=$(echo $EMR_CLUSTER_ID)
-          echo "EMR Cluster ID: $EMR_CLUSTER_ID"
+          InstanceId=$(echo $InstanceId)
+          echo "InstanceId: $InstanceId"
 
       # - name: Commit and Push Instance ID File
       #   run: |
