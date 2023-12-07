@@ -39,14 +39,13 @@ jobs:
         id: create-ec2
         run: |
           EMR_CLUSTER_ID=$(aws ec2 run-instances \
-            --ec2_name ${{ github.event.client_payload.inputs.ec2_name }} \
             --image-id ${{ github.event.client_payload.inputs.ami_id }} \
             --instance-type ${{ github.event.client_payload.inputs.instance_type }} \
             --key-name '${{ secrets.KEY_PAIR_NAME }}' \
             --region us-east-1 \
             --subnet-id ${{ secrets.SUBNET_ID }} \
             --security-group-ids ${{ secrets.SECURITY_GROUP_ID }} \
-            --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=github_wf_${{ github.event.inputs.ec2_name }}}]' \
+            --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=github_wf_${{ github.event.client_payload.inputs.ec2_name }}}]' \
             --iam-instance-profile Name=${{ secrets.IAM_INSTANCE_PROFILE }} \
             --count 1 \
             --query 'Instances[0].InstanceId' \
