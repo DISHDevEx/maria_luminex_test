@@ -51,7 +51,14 @@ jobs:
             --count 1 \
             --query 'Instances[0].InstanceId' \
             --output text)
-          echo "InstanceId=${InstanceId}" >> $GITHUB_OUTPUT
+          echo "InstanceId=${InstanceId}" >> $GITHUB_ENV
+
+      - name: Save EC2 Instance ID to artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: InstanceId
+          path: $GITHUB_ENV
+        if: always()    
 
       - name: Extract EC2 Instance ID
         id: extract-instance-id
