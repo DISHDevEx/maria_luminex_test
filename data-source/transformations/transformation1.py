@@ -22,13 +22,16 @@ def main():
     # Create a Spark session
     spark = SparkSession.builder.appName("RemoveColumn").getOrCreate()
     input_path, output_path = get_input_output_paths()
+    print(input_path)
+    print(output_path)
 
     # Read the DataFrame from HDFS
     # input_path = "/hdfs/path/csv-to-df-output/"  # Update with the actual HDFS output path from Step 1
     df = spark.read.load(input_path)
 
     # Remove the second column (index 1)
-    df = df.drop(df.columns[1])
+    df = df.drop(df.columns['Color'])
+    print(df.show())
 
     # Write the modified DataFrame to HDFS
     # output_path = "/hdfs/path/remove-column-output/"  # Update with the desired HDFS output path
