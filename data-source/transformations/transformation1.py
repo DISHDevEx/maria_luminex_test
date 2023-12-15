@@ -1,11 +1,27 @@
 from pyspark.sql import SparkSession
-import sys
+
+def main():
+    # Create a Spark session
+    spark = SparkSession.builder.appName("Transformation1").getOrCreate()
+
+    input_path, output_path = get_input_output_paths()
+
+    # Read data
+    input_data = read_data(spark, input_path)
+    input_data.show()
+    converted_data = convert_data(input_data)
+    converted_data.show()
+
+    # Write the converted data to the output path
+    write_data(converted_data, output_path)
+
+    # Stop the Spark session
+    spark.stop()
 
 def get_input_output_paths():
     import sys
 
-    # Ensure correct number of command-line arguments
-    if len(sys.argv) != 5:
+    if len(sys.argv) != 4:
         print("Usage: spark-submit script.py --input <input_path> --output <output_path>")
         sys.exit(1)
 
@@ -17,25 +33,17 @@ def get_input_output_paths():
 
     return input_path, output_path
 
-def main():
+def read_data(spark, input_path):
+    return spark.read.csv(input_path, header=True)
 
-    # Create a Spark session
-    spark = SparkSession.builder.appName("RemoveColumn").getOrCreate()
-    input_path, output_path = get_input_output_paths()
-    print(input_path)
-    print(output_path)
+def convert_data(input_data):
+    converted_data = input_data.drop('Weight')
+    # input_data.withColumnRenamed("Revenue", "Price")
+    # input_data.withColumn('Total', col('Revenue') * col('Quantity'))
+    return converted_data
 
-    # Read the DataFrame from HDFS
-    # input_path = "/hdfs/path/csv-to-df-output/"  # Update with the actual HDFS output path from Step 1
-    df = spark.read.load(input_path)
+def write_data(data, output_path):
+    data.write.mode("overwrite").json(output_path)
 
-    # Remove the second column (index 1)
-    df = df.drop(df.columns['Color'])
-    print(df.show())
-
-    # Write the modified DataFrame to HDFS
-    # output_path = "/hdfs/path/remove-column-output/"  # Update with the desired HDFS output path
-    df.write.mode("overwrite").save(output_path)
-
-    # Stop the Spark session
-    spark.stop()
+if __name__ == "__main__":
+    main()
