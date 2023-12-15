@@ -22,7 +22,7 @@ def main():
 def get_input_output_paths():
     import sys
 
-    if len(sys.argv) != 4:
+    if len(sys.argv) != 5:
         print("Usage: spark-submit script.py --input <input_path> --output <output_path>")
         sys.exit(1)
 
