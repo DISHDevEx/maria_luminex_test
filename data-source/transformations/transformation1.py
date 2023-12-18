@@ -39,11 +39,11 @@ def get_input_output_paths():
     return input_path, output_path
 
 
-def read_data(input_path):
+def read_data(spark, input_path):
     """
     Main function to initiate the S3 data processing.
     """
-    process_s3_data(input_path)
+    process_s3_data(spark, input_path)
 
 
 def read_csv_to_df(spark, bucket_folder_path):
@@ -92,7 +92,7 @@ def read_parquet_to_df(spark, bucket_folder_path):
     return df
 
 
-def process_s3_data(bucket_folder_path):
+def process_s3_data(spark, bucket_folder_path):
     """
     Processes data in an S3 bucket based on the file extension.
 
@@ -105,11 +105,11 @@ def process_s3_data(bucket_folder_path):
 
     # Choose the appropriate method based on the file extension
     if bucket_folder_path.lower().endswith(".json"):
-        read_json_to_df(bucket_folder_path)
+        read_json_to_df(spark, bucket_folder_path)
     if bucket_folder_path.lower().endswith(".csv"):
-        read_csv_to_df(bucket_folder_path)
+        read_csv_to_df(spark, bucket_folder_path)
     if bucket_folder_path.lower().endswith(".parquet"):
-        read_parquet_to_df(bucket_folder_path)
+        read_parquet_to_df(spark, bucket_folder_path)
 
 
 def transformation_1(input_df):
