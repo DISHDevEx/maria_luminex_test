@@ -6,8 +6,11 @@ import sys
 def main():
     # Create a Spark session
     spark = SparkSession.builder.appName("Transformation1").getOrCreate()
+    print(spark)
 
     input_path, output_path = get_input_output_paths()
+    print(input_path)
+    print(output_path)
 
     # Reading data
     input_data = read_data(spark, input_path)
@@ -43,6 +46,8 @@ def read_data(spark, input_path):
     """
     Main function to initiate the S3 data processing.
     """
+    print("ksjhcfjkfhgj----------Read data")
+    print(input_path)
     process_s3_data(spark, input_path)
 
 
@@ -56,6 +61,8 @@ def read_csv_to_df(spark, bucket_folder_path):
     Returns:
         df: A Spark DataFrame representing the CSV data.
     """
+    print("ckhsjchsjh- Read CSV")
+    print(bucket_folder_path)
     df = spark.read.csv(bucket_folder_path, header=True, inferSchema=True)
 
     return df
@@ -104,6 +111,7 @@ def process_s3_data(spark, bucket_folder_path):
     if bucket_folder_path.lower().endswith(".json"):
         read_json_to_df(spark, bucket_folder_path)
     if bucket_folder_path.lower().endswith(".csv"):
+        print(bucket_folder_path)
         read_csv_to_df(spark, bucket_folder_path)
     if bucket_folder_path.lower().endswith(".parquet"):
         read_parquet_to_df(spark, bucket_folder_path)
