@@ -1,7 +1,4 @@
-
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, date_format
-
 
 def main():
     # Create a Spark session
@@ -9,20 +6,17 @@ def main():
 
     input_path, output_path = get_input_output_paths()
 
-    # Reading data
+    # Read data
     input_data = read_data(spark, input_path)
     input_data.show()
-
-    # Transformation
-    transformed_data = transformation_2(input_data)
-    transformed_data.show()
+    converted_data = convert_data(input_data)
+    converted_data.show()
 
     # Write the converted data to the output path
-    write_data(transformed_data, output_path)
+    write_data(converted_data, output_path)
 
     # Stop the Spark session
     spark.stop()
-
 
 def get_input_output_paths():
     import sys
@@ -39,112 +33,15 @@ def get_input_output_paths():
 
     return input_path, output_path
 
+def read_data(spark, input_path):
+    return spark.read.csv(input_path, header=True)
 
-def read_data(input_path):
-    """
-    Main function to initiate the S3 data processing.
-    """
-    process_s3_data(input_path)
-
-
-def read_csv_to_df(spark, bucket_folder_path):
-    """
-    Reads CSV data from an S3 bucket folder path into a Spark DataFrame.
-
-    Parameters:
-        bucket_folder_path (str): The S3 bucket folder path containing the CSV files.
-
-    Returns:
-        df: A Spark DataFrame representing the CSV data.
-    """
-    df = spark.read.csv(bucket_folder_path, header=True, inferSchema=True)
-    spark.stop()
-
-    return df
-
-def read_json_to_df(spark, bucket_folder_path):
-    """
-    Reads data from a JSON file into a Spark DataFrame.
-
-    Parameters:
-        bucket_folder_path (str): The file path of the JSON file.
-
-    Returns:
-        df: A Spark DataFrame representing the JSON data.
-    """
-    df = spark.read.json(bucket_folder_path, multiLine=True)
-    spark.stop()
-
-    return df
-
-def read_parquet_to_df(spark, bucket_folder_path):
-    """
-    Reads data from a Parquet file into a Spark DataFrame.
-
-    Parameters:
-        bucket_folder_path (str): The file path of the Parquet file.
-
-    Returns:
-        df: A Spark DataFrame representing the Parquet data.
-    """
-    df = spark.read.parquet(bucket_folder_path)
-    spark.stop()
-
-    return df
-
-
-def process_s3_data(bucket_folder_path):
-    """
-    Processes data in an S3 bucket based on the file extension.
-
-    Parameters:
-        bucket_folder_path (str): The S3 bucket folder path containing the data files.
-
-    Returns:
-        None
-    """
-
-    # Choose the appropriate method based on the file extension
-    if bucket_folder_path.lower().endswith(".json"):
-        read_json_to_df(bucket_folder_path)
-    if bucket_folder_path.lower().endswith(".csv"):
-        read_csv_to_df(bucket_folder_path)
-    if bucket_folder_path.lower().endswith(".parquet"):
-        read_parquet_to_df(bucket_folder_path)
-
-
-
-def transformation_2(input_df):
-    """
-    Applies a transformation to a PySpark DataFrame containing sales data.
-
-    Parameters:
-    -----------
-    input_df : pyspark.sql.DataFrame
-        Input PySpark DataFrame with columns: 'Product', 'Category', 'Date', 'Revenue', 'Quantity',
-        'Weight', 'Color', 'Manufacturer', 'Country', 'Rating', and other optional columns.
-
-    Returns:
-    --------
-    pyspark.sql.DataFrame
-        Transformed DataFrame with additional columns:
-            - 'SalesPerQuantity': Calculated as 'Revenue' divided by 'Quantity'.
-            - 'SalesPerWeight': Calculated as 'Revenue' divided by 'Weight'.
-            - 'Date': Converted to timestamp and formatted as 'dd-LLL-yyyy'.
-
-    """
-    # Example transformation logic: Create new columns 'SalesPerQuantity' and 'SalesPerWeight'
-    input_df = input_df.withColumn('SalesPerQuantity', col('Revenue') / col('Quantity'))
-    input_df = input_df.withColumn('SalesPerWeight', col('Revenue') / col('Weight'))
-
-    # Example additional logic: Convert 'Date' to timestamp and format it
-    input_df = input_df.withColumn('Date', col('Date').cast('timestamp'))
-    input_df = input_df.withColumn('Date', date_format('Date', 'dd-LLL-yyyy'))
-
-    return input_df
-
+def convert_data(input_data):
+    converted_data = input_data.withColumnRenamed("Revenue", "Price")
+    return converted_data
 
 def write_data(data, output_path):
     data.repartition(1).write.mode("overwrite").option("header", "true").csv(output_path)
 
-
+if __name__ == "__main__":
+    main()
