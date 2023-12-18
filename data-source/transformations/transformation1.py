@@ -43,7 +43,8 @@ def convert_data(input_data):
     return converted_data
 
 def write_data(data, output_path):
-    data.repartition(1).write.mode("overwrite").csv(output_path)
+    data.repartition(1).write.mode("overwrite").option("header", "true").csv(output_path)
+
 
 if __name__ == "__main__":
     main()
