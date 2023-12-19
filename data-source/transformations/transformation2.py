@@ -14,11 +14,14 @@ def main():
     input_data.show()
 
     # Transformation
-    transformed_data = transformation_2(input_data)
-    transformed_data.show()
+    # transformed_data = transformation_2(input_data)
+    # transformed_data.show()
+
+    converted_data = convert_data(input_data)
+    converted_data.show()
 
     # Write the converted data to the output path
-    write_data(transformed_data, output_path)
+    write_data(converted_data, output_path)
 
     # Stop the Spark session
     spark.stop()
@@ -51,35 +54,35 @@ def read_data(spark, input_path):
 
 
 def convert_data(input_data):
-    converted_data = input_data.drop('Weight')
+    # converted_data = input_data.drop('Weight')
     # input_data.withColumnRenamed("Revenue", "Price")
-    # input_data.withColumn('Total', col('Revenue') * col('Quantity'))
+    converted_data = input_data.withColumn('Total', col('Revenue') * col('Quantity'))
     return converted_data
 
 
-def transformation_2(input_data):
-    """
-    Applies a transformation to a PySpark DataFrame containing sales data.
-
-    Parameters:
-    -----------
-    input_df : pyspark.sql.DataFrame
-        Input PySpark DataFrame with columns: 'Product', 'Category', 'Date', 'Revenue', 'Quantity',
-        'Weight', 'Color', 'Manufacturer', 'Country', 'Rating', and other optional columns.
-
-    Returns:
-    --------
-    pyspark.sql.DataFrame
-        Transformed DataFrame with additional columns:
-            - 'SalesPerQuantity': Calculated as 'Revenue' divided by 'Quantity'.
-            - 'SalesPerWeight': Calculated as 'Revenue' divided by 'Weight'.
-            - 'Date': Converted to timestamp and formatted as 'dd-LLL-yyyy'.
-
-    """
-    input_data = input_data.withColumn('SalesPerQuantity', (col('Revenue') / col('Quantity')))
-    output_data = input_data.withColumn('SalesPerWeight', (col('Revenue') / col('Weight')))
-
-    return output_data
+# def transformation_2(input_data):
+#     """
+#     Applies a transformation to a PySpark DataFrame containing sales data.
+#
+#     Parameters:
+#     -----------
+#     input_df : pyspark.sql.DataFrame
+#         Input PySpark DataFrame with columns: 'Product', 'Category', 'Date', 'Revenue', 'Quantity',
+#         'Weight', 'Color', 'Manufacturer', 'Country', 'Rating', and other optional columns.
+#
+#     Returns:
+#     --------
+#     pyspark.sql.DataFrame
+#         Transformed DataFrame with additional columns:
+#             - 'SalesPerQuantity': Calculated as 'Revenue' divided by 'Quantity'.
+#             - 'SalesPerWeight': Calculated as 'Revenue' divided by 'Weight'.
+#             - 'Date': Converted to timestamp and formatted as 'dd-LLL-yyyy'.
+#
+#     """
+#     input_data = input_data.withColumn('SalesPerQuantity', (col('Revenue') / col('Quantity')))
+#     output_data = input_data.withColumn('SalesPerWeight', (col('Revenue') / col('Weight')))
+#
+#     return output_data
 
 
 def write_data(data, output_path):
