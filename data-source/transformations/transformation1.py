@@ -112,9 +112,9 @@ def process_s3_data(spark, input_path):
     Returns:
         None
     """
-    spark = spark
+    df = spark.read.csv(input_path, header=True)
     # df = None
-    df = read_csv_to_df(spark, input_path)
+    # df = read_csv_to_df(spark, input_path)
 
     # Choose the appropriate method based on the file extension
     # if bucket_folder_path.lower().endswith(".json"):
