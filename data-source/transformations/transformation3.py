@@ -38,7 +38,7 @@ def read_data(spark, input_path):
     return spark.read.csv(input_path, header=True)
 
 def convert_data(input_data):
-    converted_data = input_data.withColumn('Total', col('Price') * col('Quantity'))
+    converted_data = input_data.withColumn("Total", col("Price") * col("Quantity"))
     return converted_data
 
 def write_data(data, output_path):
