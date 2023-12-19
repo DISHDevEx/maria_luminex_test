@@ -23,7 +23,7 @@ def main():
     # transformed_data.show()
 
     # Write the converted data to the output path
-    write_data(input_data, output_path)
+    # write_data(input_data, output_path)
 
     # Stop the Spark session
     spark.stop()
