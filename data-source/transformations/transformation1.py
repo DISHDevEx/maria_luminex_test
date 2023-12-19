@@ -56,7 +56,7 @@ def convert_data(input_data):
     return converted_data
 
 
-def transformation_1(input_df):
+def transformation_1(input_data):
     """
     Applies a transformation to calculate total sales for each product in a PySpark DataFrame.
 
@@ -73,7 +73,7 @@ def transformation_1(input_df):
             - 'TotalSales': Total sales for each product.
 
     """
-    output_df = input_df.groupBy('Product').agg(sum('Revenue').alias('TotalSales'))
+    output_df = input_data.drop('Weight')
     return output_df
 
 

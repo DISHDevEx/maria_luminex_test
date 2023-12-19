@@ -1,14 +1,15 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, sum, year, month
+import sys
 
 
 def main():
     # Create a Spark session
-    spark = SparkSession.builder.appName("Transformation3").getOrCreate()
+    spark = SparkSession.builder.appName("Transformation1").getOrCreate()
 
     input_path, output_path = get_input_output_paths()
 
-    # Reading data
+    # Read data
     input_data = read_data(spark, input_path)
     input_data.show()
 
@@ -24,7 +25,6 @@ def main():
 
 
 def get_input_output_paths():
-    import sys
 
     if len(sys.argv) != 5:
         print("Usage: spark-submit script.py --input <input_path> --output <output_path>")
@@ -39,80 +39,25 @@ def get_input_output_paths():
     return input_path, output_path
 
 
-def read_data(input_path):
-    """
-    Main function to initiate the S3 data processing.
-    """
-    process_s3_data(input_path)
-
-
-def read_csv_to_df(spark, bucket_folder_path):
-    """
-    Reads CSV data from an S3 bucket folder path into a Spark DataFrame.
-
-    Parameters:
-        bucket_folder_path (str): The S3 bucket folder path containing the CSV files.
-
-    Returns:
-        df: A Spark DataFrame representing the CSV data.
-    """
-    df = spark.read.csv(bucket_folder_path, header=True, inferSchema=True)
-    spark.stop()
-
-    return df
-
-def read_json_to_df(spark, bucket_folder_path):
-    """
-    Reads data from a JSON file into a Spark DataFrame.
-
-    Parameters:
-        bucket_folder_path (str): The file path of the JSON file.
-
-    Returns:
-        df: A Spark DataFrame representing the JSON data.
-    """
-    df = spark.read.json(bucket_folder_path, multiLine=True)
-    spark.stop()
-
-    return df
-
-def read_parquet_to_df(spark, bucket_folder_path):
-    """
-    Reads data from a Parquet file into a Spark DataFrame.
-
-    Parameters:
-        bucket_folder_path (str): The file path of the Parquet file.
-
-    Returns:
-        df: A Spark DataFrame representing the Parquet data.
-    """
-    df = spark.read.parquet(bucket_folder_path)
-    spark.stop()
-
-    return df
-
-
-def process_s3_data(bucket_folder_path):
-    """
-    Processes data in an S3 bucket based on the file extension.
-
-    Parameters:
-        bucket_folder_path (str): The S3 bucket folder path containing the data files.
-
-    Returns:
-        None
-    """
-
+def read_data(spark, input_path):
     # Choose the appropriate method based on the file extension
-    if bucket_folder_path.lower().endswith(".json"):
-        read_json_to_df(bucket_folder_path)
-    if bucket_folder_path.lower().endswith(".csv"):
-        read_csv_to_df(bucket_folder_path)
-    if bucket_folder_path.lower().endswith(".parquet"):
-        read_parquet_to_df(bucket_folder_path)
+    if input_path.lower().endswith(".json"):
+        df = spark.read.json(input_path, multiLine=True)
+    if input_path.lower().endswith(".csv"):
+        df = spark.read.csv(input_path, header=True)
+    if input_path.lower().endswith(".parquet"):
+        df = spark.read.parquet(input_path)
+    return df
 
 
-def transformation_3(input_df):
+def convert_data(input_data):
+    converted_data = input_data.drop('Weight')
+    # input_data.withColumnRenamed("Revenue", "Price")
+    # input_data.withColumn('Total', col('Revenue') * col('Quantity'))
+    return converted_data
+
+
+def transformation_3(input_data):
     """
     Applies a transformation to a PySpark DataFrame containing sales data.
 
@@ -134,19 +79,19 @@ def transformation_3(input_df):
             - 'SalesPercentage_Category': Sales percentage for each category.
 
     """
-    # Convert 'Date' column to timestamp format
-    input_df = input_df.withColumn('Date', col('Date').cast('timestamp'))
-
-    # Extract 'Year' and 'Month' from 'Date'
-    input_df = input_df.withColumn('Year', year('Date'))
-    input_df = input_df.withColumn('Month', month('Date'))
+    # # Convert 'Date' column to timestamp format
+    # input_df = input_df.withColumn('Date', col('Date').cast('timestamp'))
+    #
+    # # Extract 'Year' and 'Month' from 'Date'
+    # input_df = input_df.withColumn('Year', year('Date'))
+    # input_df = input_df.withColumn('Month', month('Date'))
 
     # Calculate total sales for each product and category
-    total_sales_per_product = input_df.groupBy('Product').agg(sum('Revenue').alias('TotalSales_Product'))
-    total_sales_per_category = input_df.groupBy('Category').agg(sum('Revenue').alias('TotalSales_Category'))
+    total_sales_per_product = input_data.groupBy('Product').agg(sum('Revenue').alias('TotalSales_Product'))
+    total_sales_per_category = input_data.groupBy('Category').agg(sum('Revenue').alias('TotalSales_Category'))
 
     # Merge total sales back into the main DataFrame
-    input_df = input_df.join(total_sales_per_product, on='Product')
+    input_df = input_data.join(total_sales_per_product, on='Product')
     input_df = input_df.join(total_sales_per_category, on='Category')
 
     # Calculate sales percentage for each product and category
