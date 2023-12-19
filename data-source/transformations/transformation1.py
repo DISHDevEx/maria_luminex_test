@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import sum, col
+from pyspark.sql.functions import sum
 import sys
 
 
@@ -13,7 +13,7 @@ def main():
     print(output_path)
 
     # Reading data
-    input_data = read_data(spark, input_path)
+    input_data = process_s3_data(spark, input_path)
     input_data.show()
 
     # Transformation
@@ -21,7 +21,7 @@ def main():
     transformed_data.show()
 
     # Write the converted data to the output path
-    write_data(input_data, output_path)
+    write_data(transformed_data, output_path)
 
     # Stop the Spark session
     spark.stop()
@@ -42,14 +42,14 @@ def get_input_output_paths():
     return input_path, output_path
 
 
-def read_data(spark, input_path):
-    """
-    Main function to initiate the S3 data processing.
-    """
-    # print("ksjhcfjkfhgj----------Read data")
-    # print(input_path)
-    # process_s3_data(spark, input_path)
-    return spark.read.csv(input_path, header=True)
+# def read_data(spark, input_path):
+#     """
+#     Main function to initiate the S3 data processing.
+#     """
+#     # print("ksjhcfjkfhgj----------Read data")
+#     # print(input_path)
+#     # process_s3_data(spark, input_path)
+#     return spark.read.csv(input_path, header=True)
 
 
 def read_csv_to_df(spark, bucket_folder_path):
@@ -108,14 +108,18 @@ def process_s3_data(spark, bucket_folder_path):
         None
     """
 
+    # df = None
+
     # Choose the appropriate method based on the file extension
     if bucket_folder_path.lower().endswith(".json"):
-        read_json_to_df(spark, bucket_folder_path)
+        df = read_json_to_df(spark, bucket_folder_path)
     if bucket_folder_path.lower().endswith(".csv"):
         print(bucket_folder_path)
-        read_csv_to_df(spark, bucket_folder_path)
+        df = read_csv_to_df(spark, bucket_folder_path)
     if bucket_folder_path.lower().endswith(".parquet"):
-        read_parquet_to_df(spark, bucket_folder_path)
+        df = read_parquet_to_df(spark, bucket_folder_path)
+
+    return df
 
 
 def transformation_1(input_df):
