@@ -13,11 +13,11 @@ def main():
 
     # Read data
     input_data = read_data(spark, input_path)
-    df1 = input_data.toPandas()
+    # df1 = input_data.toPandas()
     input_data.show()
 
     # Transformation
-    transformed_data = transformation_1(df1)
+    transformed_data = transformation_1(input_data)
     transformed_data.show()
 
     # Write the converted data to the output path
