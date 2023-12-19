@@ -112,7 +112,7 @@ def process_s3_data(spark, input_path):
     Returns:
         None
     """
-
+    spark = spark
     # df = None
     df = read_csv_to_df(spark, input_path)
 
