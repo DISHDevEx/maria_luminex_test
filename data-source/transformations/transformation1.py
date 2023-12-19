@@ -4,12 +4,14 @@ from pyspark.sql.functions import col
 def main():
     # Create a Spark session
     spark = SparkSession.builder.appName("Transformation3").getOrCreate()
+    spark.sparkContext.setLogLevel("INFO")
 
     input_path, output_path = get_input_output_paths()
 
     # Read data
     input_data = read_data(spark, input_path)
     input_data.show()
+    spark.sparkContext.setLogLevel("ERROR")
     converted_data = convert_data(input_data)
     converted_data.show()
 
