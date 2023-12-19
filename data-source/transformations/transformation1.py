@@ -15,8 +15,8 @@ def main():
     # converted_data = convert_data(input_data)
     # converted_data.show()
 
-    # Write the converted data to the output path
-    write_data(input_data, output_path)
+    # # Write the converted data to the output path
+    # write_data(input_data, output_path)
 
     # Stop the Spark session
     spark.stop()
@@ -46,6 +46,6 @@ def read_data(spark, input_path):
 #     converted_data = spark.sql("SELECT *, (Weight * 2) AS Total FROM input_data").show()
 #     return converted_data
 
-def write_data(data, output_path):
-    # data.repartition(1).write().mode("overwrite").csv(output_path)
-    data.repartition(1).write.mode("overwrite").option("header", "true").csv(output_path)
+# def write_data(data, output_path):
+#     # data.repartition(1).write().mode("overwrite").csv(output_path)
+#     data.repartition(1).write.mode("overwrite").option("header", "true").csv(output_path)
