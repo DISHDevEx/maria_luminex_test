@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, date_format
+from pyspark.sql.functions import col
 import sys
 
 
@@ -56,6 +56,7 @@ def convert_data(input_data):
     # input_data.withColumn('Total', col('Revenue') * col('Quantity'))
     return converted_data
 
+
 def transformation_2(input_data):
     """
     Applies a transformation to a PySpark DataFrame containing sales data.
@@ -75,14 +76,11 @@ def transformation_2(input_data):
             - 'Date': Converted to timestamp and formatted as 'dd-LLL-yyyy'.
 
     """
-    input_df = input_data.withColumn('SalesPerQuantity', col('Revenue') / col('Quantity'))
-    input_df = input_data.withColumn('SalesPerWeight', col('Revenue') / col('Weight'))
+    input_data = input_data.withColumn('SalesPerQuantity', (col('Revenue') / col('Quantity')))
+    output_data = input_data.withColumn('SalesPerWeight', (col('Revenue') / col('Weight')))
 
-
-    return input_df
+    return output_data
 
 
 def write_data(data, output_path):
     data.repartition(1).write.mode("overwrite").option("header", "true").csv(output_path)
-
-
