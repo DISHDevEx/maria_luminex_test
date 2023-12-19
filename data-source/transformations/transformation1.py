@@ -1,5 +1,8 @@
 from pyspark.sql import SparkSession
 import sys
+from pyspark.sql.functions import col
+
+
 
 
 def main():
@@ -74,7 +77,7 @@ def transformation_1(input_data):
             - 'TotalSales': Total sales for each product.
 
     """
-    transformed_data = input_data.select(sum("salary")).show(truncate=False)
+    transformed_data = input_data.withColumn('SalesPerQuantity', (col('Revenue') / col('Quantity')))
     return transformed_data
 
 
