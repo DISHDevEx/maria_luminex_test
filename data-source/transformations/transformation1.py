@@ -114,15 +114,16 @@ def process_s3_data(spark, bucket_folder_path):
     """
 
     # df = None
+    df = read_csv_to_df(spark, bucket_folder_path)
 
     # Choose the appropriate method based on the file extension
-    if bucket_folder_path.lower().endswith(".json"):
-        df = read_json_to_df(spark, bucket_folder_path)
-    if bucket_folder_path.lower().endswith(".csv"):
-        print(bucket_folder_path)
-        df = read_csv_to_df(spark, bucket_folder_path)
-    if bucket_folder_path.lower().endswith(".parquet"):
-        df = read_parquet_to_df(spark, bucket_folder_path)
+    # if bucket_folder_path.lower().endswith(".json"):
+    #     df = read_json_to_df(spark, bucket_folder_path)
+    # if bucket_folder_path.lower().endswith(".csv"):
+    #     print(bucket_folder_path)
+    #     df = read_csv_to_df(spark, bucket_folder_path)
+    # if bucket_folder_path.lower().endswith(".parquet"):
+    #     df = read_parquet_to_df(spark, bucket_folder_path)
 
     return df
 
