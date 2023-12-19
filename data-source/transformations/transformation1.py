@@ -39,9 +39,11 @@ def get_input_output_paths():
 def read_data(spark, input_path):
     return spark.read.csv(input_path, header=True)
 
-def convert_data(input_data):
-    converted_data = input_data.withColumn("Weight", col("Weight")*100)
-    # df.withColumn("salary",col("salary")*100)
+def convert_data(spark, input_data):
+    # converted_data = input_data.withColumn("Weight", col("Weight")*100)
+    # # df.withColumn("salary",col("salary")*100)
+    input_data.createOrReplaceTempView("input_data")
+    converted_data = spark.sql("SELECT *, (Weight * 2) AS Total FROM input_data").show()
     return converted_data
 
 def write_data(data, output_path):
