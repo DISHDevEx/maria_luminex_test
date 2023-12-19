@@ -56,6 +56,7 @@ def read_data(spark, input_path):
 def convert_data(input_data):
     # converted_data = input_data.drop('Weight')
     # input_data.withColumnRenamed("Revenue", "Price")
+    input_data = input_data.na.drop(subset=["Revenue", "Quantity"])
     converted_data = input_data.withColumn('Total', col('Revenue') * col('Quantity'))
     return converted_data
 
