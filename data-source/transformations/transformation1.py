@@ -1,6 +1,7 @@
 from pyspark.sql import SparkSession
 import sys
 
+
 def main():
     # Create a Spark session
     spark = SparkSession.builder.appName("Transformation1").getOrCreate()
@@ -12,17 +13,17 @@ def main():
     input_data.show()
 
     # Transformation
-    converted_data = convert_data(input_data)
-    converted_data.show()
+    transformed_data = transformation_1(input_data)
+    transformed_data.show()
 
     # Write the converted data to the output path
-    write_data(converted_data, output_path)
+    write_data(transformed_data, output_path)
 
     # Stop the Spark session
     spark.stop()
 
-def get_input_output_paths():
 
+def get_input_output_paths():
 
     if len(sys.argv) != 5:
         print("Usage: spark-submit script.py --input <input_path> --output <output_path>")
@@ -36,19 +37,15 @@ def get_input_output_paths():
 
     return input_path, output_path
 
+
 def read_data(spark, input_path):
     # Choose the appropriate method based on the file extension
     if input_path.lower().endswith(".json"):
-        # df = read_json_to_df(spark, input_path)
         df = spark.read.json(input_path, multiLine=True)
     if input_path.lower().endswith(".csv"):
-        print(input_path)
-        # df = read_csv_to_df(spark, input_path)
         df = spark.read.csv(input_path, header=True)
     if input_path.lower().endswith(".parquet"):
-        # df = read_parquet_to_df(spark, input_path)
         df = spark.read.parquet(input_path)
-    # return spark.read.csv(input_path, header=True)
     return df
 
 
@@ -57,6 +54,28 @@ def convert_data(input_data):
     # input_data.withColumnRenamed("Revenue", "Price")
     # input_data.withColumn('Total', col('Revenue') * col('Quantity'))
     return converted_data
+
+
+def transformation_1(input_df):
+    """
+    Applies a transformation to calculate total sales for each product in a PySpark DataFrame.
+
+    Parameters:
+    -----------
+    input_df : pyspark.sql.DataFrame
+        Input PySpark DataFrame with columns: 'Product', 'Revenue', and other optional columns.
+
+    Returns:
+    --------
+    pyspark.sql.DataFrame
+        Transformed DataFrame with columns:
+            - 'Product': Unique products.
+            - 'TotalSales': Total sales for each product.
+
+    """
+    output_df = input_df.groupBy('Product').agg(sum('Revenue').alias('TotalSales'))
+    return output_df
+
 
 def write_data(data, output_path):
     data.repartition(1).write.mode("overwrite").option("header", "true").csv(output_path)
