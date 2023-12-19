@@ -17,7 +17,9 @@ def main():
     # transformed_data = transformation_2(input_data)
     # transformed_data.show()
 
-    converted_data = convert_data(input_data)
+    # converted_data = convert_data(input_data)
+    # converted_data.show()
+    converted_data = input_data.withColumn('Total', col('Revenue') * col('Quantity'))
     converted_data.show()
 
     # Write the converted data to the output path
@@ -53,12 +55,12 @@ def read_data(spark, input_path):
     return df
 
 
-def convert_data(input_data):
-    # converted_data = input_data.drop('Weight')
-    # input_data.withColumnRenamed("Revenue", "Price")
-    input_data = input_data.na.drop(subset=["Revenue", "Quantity"])
-    converted_data = input_data.withColumn('Total', col('Revenue') * col('Quantity'))
-    return converted_data
+# def convert_data(input_data):
+#     # converted_data = input_data.drop('Weight')
+#     # input_data.withColumnRenamed("Revenue", "Price")
+#     input_data = input_data.na.drop(subset=["Revenue", "Quantity"])
+#     converted_data = input_data.withColumn('Total', col('Revenue') * col('Quantity'))
+#     return converted_data
 
 
 # def transformation_2(input_data):
