@@ -13,18 +13,23 @@ def main():
     print(output_path)
 
     # Reading data
-    input_data = process_s3_data(spark, input_path)
+    # input_data = process_s3_data(spark, input_path)
+    # input_data.show()
+    input_data = read_data(spark, input_path)
     input_data.show()
 
-    # Transformation
-    transformed_data = transformation_1(input_data)
-    transformed_data.show()
+    # # Transformation
+    # transformed_data = transformation_1(input_data)
+    # transformed_data.show()
 
     # Write the converted data to the output path
-    write_data(transformed_data, output_path)
+    write_data(input_data, output_path)
 
     # Stop the Spark session
     spark.stop()
+
+def read_data(spark, input_path):
+    return spark.read.csv(input_path, header=True)
 
 
 def get_input_output_paths():
@@ -122,27 +127,27 @@ def process_s3_data(spark, bucket_folder_path):
     return df
 
 
-def transformation_1(input_df):
-    """
-    Applies a transformation to calculate total sales for each product in a PySpark DataFrame.
-
-    Parameters:
-    -----------
-    input_df : pyspark.sql.DataFrame
-        Input PySpark DataFrame with columns: 'Product', 'Revenue', and other optional columns.
-
-    Returns:
-    --------
-    pyspark.sql.DataFrame
-        Transformed DataFrame with columns:
-            - 'Product': Unique products.
-            - 'TotalSales': Total sales for each product.
-
-    """
-    output_df = input_df.groupBy('Product').agg(sum('Revenue').alias('TotalSales'))
-    return output_df
+# def transformation_1(input_df):
+#     """
+#     Applies a transformation to calculate total sales for each product in a PySpark DataFrame.
+#
+#     Parameters:
+#     -----------
+#     input_df : pyspark.sql.DataFrame
+#         Input PySpark DataFrame with columns: 'Product', 'Revenue', and other optional columns.
+#
+#     Returns:
+#     --------
+#     pyspark.sql.DataFrame
+#         Transformed DataFrame with columns:
+#             - 'Product': Unique products.
+#             - 'TotalSales': Total sales for each product.
+#
+#     """
+#     output_df = input_df.groupBy('Product').agg(sum('Revenue').alias('TotalSales'))
+#     return output_df
 
 
 def write_data(data, output_path):
-    data.repartition(1).write.mode("overwrite").option("header", "true").csv(output_path)
+    data.repartition(1).write.mode("overwrite").option("header", "true").json(output_path)
 
