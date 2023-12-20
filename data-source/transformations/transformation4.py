@@ -158,7 +158,7 @@ def pyspark_df_json_upload(df, output_format, output_path):
     """
     filename = "transformation.json"
     # df.repartition(1).write.format(output_format).mode("overwrite").option("header", "true").save(output_path)
-    df.repartition(1).write.mode("overwrite").option("header", "true").json(output_path + filename)
+    df.repartition(1).write.mode("overwrite").option("header", "true").json(output_path + '/' + filename)
 
 
 if __name__ == "__main__":
