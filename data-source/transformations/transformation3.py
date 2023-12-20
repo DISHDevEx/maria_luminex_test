@@ -53,6 +53,50 @@ def get_input_output_paths():
     return input_path, output_path
 
 
+def read_csv_to_df(spark, bucket_folder_path):
+    """
+    Reads CSV data from an S3 bucket folder path into a Spark DataFrame.
+
+    Parameters:
+        bucket_folder_path (str): The S3 bucket folder path containing the CSV files.
+
+    Returns:
+        df: A Spark DataFrame representing the CSV data.
+    """
+    df = spark.read.csv(bucket_folder_path, header=True, inferSchema=True)
+
+    return df
+
+def read_json_to_df(spark, bucket_folder_path):
+    """
+    Reads data from a JSON file into a Spark DataFrame.
+
+    Parameters:
+        bucket_folder_path (str): The file path of the JSON file.
+
+    Returns:
+        df: A Spark DataFrame representing the JSON data.
+    """
+    df = spark.read.json(bucket_folder_path, multiLine=True)
+
+    return df
+
+
+def read_parquet_to_df(spark, bucket_folder_path):
+    """
+    Reads data from a Parquet file into a Spark DataFrame.
+
+    Parameters:
+        bucket_folder_path (str): The file path of the Parquet file.
+
+    Returns:
+        df: A Spark DataFrame representing the Parquet data.
+    """
+    df = spark.read.parquet(bucket_folder_path)
+
+    return df
+
+
 def read_data(spark, input_path):
     """
         Reads the input file from an S3 bucket and returns a DataFrame.
@@ -63,13 +107,16 @@ def read_data(spark, input_path):
         Returns:
         - dataframe: Dataframe containing the input data.
     """
+    # df = None
+    spark = spark
     # Choose the appropriate method based on the file extension
     if input_path.lower().endswith(".json"):
-        df = spark.read.json(input_path, multiLine=True)
+        df = read_json_to_df(spark, input_path)
     if input_path.lower().endswith(".csv"):
-        df = spark.read.csv(input_path, header=True, inferSchema=True)
+        df = read_csv_to_df(spark, input_path)
     if input_path.lower().endswith(".parquet"):
-        df = spark.read.parquet(input_path)
+        df = read_parquet_to_df(spark, input_path)
+    # df = spark.read.json(input_path, multiLine=True)
     return df
 
 
