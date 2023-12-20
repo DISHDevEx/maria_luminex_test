@@ -108,6 +108,7 @@ def read_data(spark, input_path):
     # df = None
     spark = spark
     filename = "transformation.json"
+    input_path = input_path + '/' + filename
     # input_path = input_path + '/' + filename
     # Choose the appropriate method based on the file extension
     if input_path.lower().endswith(".json"):
