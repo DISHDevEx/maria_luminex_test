@@ -109,11 +109,11 @@ def read_data(spark, input_path):
     spark = spark
     # Choose the appropriate method based on the file extension
     if input_path.lower().endswith(".json"):
-        df = spark.read.json(spark, input_path, multiLine=True)
+        df = read_json_to_df(spark, input_path)
     if input_path.lower().endswith(".csv"):
-        df = spark.read.csv(spark, input_path, header=True, inferSchema=True)
+        df = read_csv_to_df(spark, input_path)
     if input_path.lower().endswith(".parquet"):
-        df = spark.read.parquet(spark, input_path)
+        df = read_parquet_to_df(spark, input_path)
     # df = spark.read.json(input_path, multiLine=True)
     return df
 
