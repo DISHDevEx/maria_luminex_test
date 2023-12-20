@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession
 import sys
 import pyspark.sql.functions as f
-from pyspark.sql.functions import cast
+from pyspark.sql.functions import cast, sum, year, month
 
 
 def main():
@@ -75,7 +75,10 @@ def transformation_3(input_data):
     """
     # Convert 'Date' column to timestamp format
     input_data = input_data.withColumn("Date", cast(input_data["Date"], "timestamp"))
-    # input_data = input_data.withColumn('Date', col('Date').cast('timestamp'))
+
+    # Extract 'Year' and 'Month' from 'Date'
+    input_data = input_data.withColumn('Year', year('Date'))
+    input_data = input_data.withColumn('Month', month('Date'))
 
     # Calculate total sales for each product and category
     total_sales_per_product = input_data.groupBy("Product").agg(f.sum('Revenue').alias('TotalSales_Product'))
@@ -95,8 +98,8 @@ def transformation_3(input_data):
 
 
 def write_data(data, output_path):
-    # data.repartition(1).write().mode("overwrite").csv(output_path)
-    data.write.mode("overwrite").csv(output_path)
+    data.repartition(1).write().mode("overwrite").csv(output_path)
+    # data.write.mode("overwrite").csv(output_path)
 
 
 if __name__ == "__main__":
