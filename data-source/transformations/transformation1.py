@@ -71,7 +71,7 @@ def read_data(spark, input_path):
     #     df = spark.read.csv(input_path, header=True, inferSchema=True)
     # if input_path.lower().endswith(".parquet"):
     #     df = spark.read.parquet(input_path)
-    df = spark.read.csv(input_path, header=True)
+    df = spark.read.json(input_path, multiLine=True)
     return df
 
 
@@ -105,7 +105,7 @@ def pyspark_df_json_upload(df, output_format, output_path):
     output_path : output data stored location in s3
     """
     # df.repartition(1).write.format(output_format).mode("overwrite").option("header", "true").save(output_path)
-    df.repartition(1).write.mode("overwrite").option("header", "true").csv(output_path)
+    df.repartition(1).write.mode("overwrite").option("header", "true").json(output_path)
 
 if __name__ == "__main__":
     main()
