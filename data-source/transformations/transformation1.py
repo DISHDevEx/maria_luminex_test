@@ -22,7 +22,7 @@ def main():
     transformed_data = transformation_1(input_data)
     transformed_data.show()
 
-    output_format = "json"
+    # output_format = "json"
 
     # Write the converted data to the output path
     pyspark_df_json_upload(transformed_data, output_format, output_path)
@@ -103,8 +103,8 @@ def pyspark_df_json_upload(df, output_format, output_path):
     output_format : format of the transformed-data
     output_path : output data stored location in s3
     """
-    df.repartition(1).write.format(output_format).mode("overwrite").save(output_path)
-
+    df.repartition(1).write.format(output_format).mode("overwrite").option("header", "true").save(output_path)
+    # df.repartition(1).write.mode("overwrite").option("header", "true").csv(output_path)
 
 if __name__ == "__main__":
     main()
