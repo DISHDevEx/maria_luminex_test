@@ -1,9 +1,6 @@
 from pyspark.sql import SparkSession
 import sys
 import pyspark.sql.functions as f
-from pyspark.sql.functions import col
-from pyspark.sql.functions import sum
-from pyspark.sql.functions import expr
 
 
 def main():
@@ -14,7 +11,6 @@ def main():
 
     # Read data
     input_data = read_data(spark, input_path)
-    # df1 = input_data.toPandas()
     input_data.show()
 
     # Transformation
@@ -54,13 +50,6 @@ def read_data(spark, input_path):
     return df
 
 
-# def convert_data(input_data):
-#     converted_data = input_data.drop('Weight')
-#     # input_data.withColumnRenamed("Revenue", "Price")
-#     # input_data.withColumn('Total', col('Revenue') * col('Quantity'))
-#     return converted_data
-
-
 def transformation_1(input_data):
     """
     Applies a transformation to calculate total sales for each product in a PySpark DataFrame.
@@ -78,16 +67,9 @@ def transformation_1(input_data):
             - 'TotalSales': Total sales for each product.
 
     """
-    transformed_data = input_data.withColumn("Total", f.col("Revenue") / f.col("Quantity"))
-        # input_data.withColumn("Revenue", expr("Revenue * 2"))
-        # input_data.withColumn("Total", sum(input_data["Weight"], input_data["Quantity"]))
-        # input_data.withColumn('SalesPerQuantity', (col('Revenue') / col('Quantity')))
+    transformed_data = input_data.groupBy("Product").agg(f.sum("Revenue").alias('TotalSales'))
     return transformed_data
 
 
 def write_data(data, output_path):
     data.repartition(1).write.mode("overwrite").option("header", "true").csv(output_path)
-
-
-if __name__ == "__main__":
-    main()
