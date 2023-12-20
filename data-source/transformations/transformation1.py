@@ -74,8 +74,8 @@ def transformation_1(input_data):
     #     .join(df2, "CustomerID") \
     #     .withColumn("NormalizedCustomerValue", (F.col("CustomerValue") / F.col("CustomerValueSum"))) \
     #     .drop("CustomerValueSum")
-    transformed_data = input_data.withColumn("Total", f.col("Revenue") / f.col("Quantity"))
-    # transformed_data = input_data.groupBy("Product").agg(f.sum("Revenue").alias('TotalSales'))
+    # transformed_data = input_data.withColumn("Total", f.col("Revenue") / f.col("Quantity"))
+    transformed_data = input_data.groupBy("Product").agg(f.sum("Revenue").alias('TotalSales'))
     return transformed_data
 
 
