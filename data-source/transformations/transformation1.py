@@ -63,6 +63,7 @@ def read_data(spark, input_path):
         Returns:
         - dataframe: Dataframe containing the input data.
     """
+    df = None
     # Choose the appropriate method based on the file extension
     if input_path.lower().endswith(".json"):
         df = spark.read.json(input_path, multiLine=True)
