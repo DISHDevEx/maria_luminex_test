@@ -1,12 +1,14 @@
 from pyspark.sql import SparkSession
 import sys
 import pyspark.sql.functions as f
-from pyspark.sql.functions import col
-from pyspark.sql.functions import sum
-from pyspark.sql.functions import expr
 
 
 def main():
+    """
+        Main function which that runs a spark job to convert a dataset into dataframe,
+        apply the transformation and next convert the transformed dataframe into json and store to an S3.
+
+    """
     # Create a Spark session
     spark = SparkSession.builder.appName("Transformation1").getOrCreate()
 
@@ -20,14 +22,23 @@ def main():
     transformed_data = transformation_1(input_data)
     transformed_data.show()
 
+    output_format = "json"
+
     # Write the converted data to the output path
-    write_data(transformed_data, output_path)
+    pyspark_df_json_upload(transformed_data, output_format, output_path)
 
     # Stop the Spark session
     spark.stop()
 
 
 def get_input_output_paths():
+    """
+        Retrieves the S3 path of the input dataset and the S3 path to save the transformed dataset.
+
+        Returns:
+        - input_path: S3 path of the input dataset
+        - output_path: S3 path to save the transformed dataset
+    """
 
     if len(sys.argv) != 5:
         print("Usage: spark-submit script.py --input <input_path> --output <output_path>")
@@ -43,6 +54,15 @@ def get_input_output_paths():
 
 
 def read_data(spark, input_path):
+    """
+        Reads the input file from an S3 bucket and returns a DataFrame.
+
+        Parameters:
+        - input_path: S3 path of the input dataset
+
+        Returns:
+        - dataframe: Dataframe containing the input data.
+    """
     # Choose the appropriate method based on the file extension
     if input_path.lower().endswith(".json"):
         df = spark.read.json(input_path, multiLine=True)
@@ -70,17 +90,19 @@ def transformation_1(input_data):
             - 'TotalSales': Total sales for each product.
 
     """
-    # df1 = df1 \
-    #     .join(df2, "CustomerID") \
-    #     .withColumn("NormalizedCustomerValue", (F.col("CustomerValue") / F.col("CustomerValueSum"))) \
-    #     .drop("CustomerValueSum")
-    # transformed_data = input_data.withColumn("Total", f.col("Revenue") / f.col("Quantity"))
     transformed_data = input_data.groupBy("Product").agg(f.sum("Revenue").alias('TotalSales'))
     return transformed_data
 
 
-def write_data(data, output_path):
-    data.repartition(1).write.mode("overwrite").option("header", "true").csv(output_path)
+def pyspark_df_json_upload(df, output_format, output_path):
+
+    """
+    Converts the transformed spark dataframe to desired format and saves the output to s3 bucket.
+    df : pyspark dataframe
+    output_format : format of the transformed-data
+    output_path : output data stored location in s3
+    """
+    df.repartition(1).write.format(output_format).mode("overwrite").save(output_path)
 
 
 if __name__ == "__main__":
