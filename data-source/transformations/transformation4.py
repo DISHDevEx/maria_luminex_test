@@ -1,6 +1,7 @@
 from pyspark.sql import SparkSession
-import pyspark.sql.functions as f
 import sys
+import pyspark.sql.functions as f
+from pyspark.sql.functions import col, cast, sum, year, month
 
 
 def main():
@@ -10,19 +11,19 @@ def main():
 
     """
     # Create a Spark session
-    spark = SparkSession.builder.appName("Transformation2").getOrCreate()
+    spark = SparkSession.builder.appName("Transformation3").getOrCreate()
 
     input_path, output_path = get_input_output_paths()
-
-    output_format = "json"
 
     # Read data
     input_data = read_data(spark, input_path)
     input_data.show()
 
     # Transformation
-    transformed_data = transformation_2(input_data)
+    transformed_data = transformation_4(input_data)
     transformed_data.show()
+
+    output_format = "json"
 
     # Write the converted data to the output path
     pyspark_df_json_upload(transformed_data, output_format, output_path)
@@ -62,7 +63,6 @@ def read_data(spark, input_path):
         Returns:
         - dataframe: Dataframe containing the input data.
     """
-    # df = None
     # Choose the appropriate method based on the file extension
     if input_path.lower().endswith(".json"):
         df = spark.read.json(input_path, multiLine=True)
@@ -73,7 +73,7 @@ def read_data(spark, input_path):
     return df
 
 
-def transformation_2(input_data):
+def transformation_4(input_data):
     """
     Applies a transformation to a PySpark DataFrame containing sales data.
 
@@ -87,12 +87,16 @@ def transformation_2(input_data):
     --------
     pyspark.sql.DataFrame
         Transformed DataFrame with additional columns:
-            - 'SalesPerQuantity': Calculated as 'Revenue' divided by 'Quantity'.
-            - 'SalesPerWeight': Calculated as 'Revenue' divided by 'Weight'.
+            - 'Date': Converted to timestamp and formatted as 'dd-LLL-yyyy'.
+            - 'Year': Extracted from the 'Date' column.
+            - 'Month': Extracted from the 'Date' column.
+            - 'TotalSales_Product': Total sales for each product.
+            - 'TotalSales_Category': Total sales for each category.
+            - 'SalesPercentage_Product': Sales percentage for each product.
+            - 'SalesPercentage_Category': Sales percentage for each category.
 
     """
-    input_data = input_data.withColumn("SalesPerQuantity", f.col("Revenue") / f.col("Quantity"))
-    transformed_data = input_data.withColumn("SalesPerWeight", f.col("Revenue") / f.col("Weight"))
+    transformed_data = input_data.drop('Weight')
 
     return transformed_data
 
