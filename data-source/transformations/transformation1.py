@@ -22,7 +22,7 @@ def main():
     transformed_data = transformation_1(input_data)
     transformed_data.show()
 
-    # output_format = "json"
+    output_format = "json"
 
     # Write the converted data to the output path
     pyspark_df_json_upload(transformed_data, output_format, output_path)
