@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession
 import sys
 import pyspark.sql.functions as f
-from pyspark.sql.functions import cast, sum, year, month
+from pyspark.sql.functions import col, cast, sum, year, month
 
 
 def main():
@@ -74,7 +74,7 @@ def transformation_3(input_data):
 
     """
     # Convert 'Date' column to timestamp format
-    input_data = input_data.withColumn("Date", cast(input_data["Date"], "timestamp"))
+    input_data = input_data.withColumn('Date', col('Date').cast('timestamp'))
 
     # Extract 'Year' and 'Month' from 'Date'
     input_data = input_data.withColumn('Year', year('Date'))
