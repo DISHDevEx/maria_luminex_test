@@ -69,7 +69,7 @@ def transformation_2(input_data):
             - 'Date': Converted to timestamp and formatted as 'dd-LLL-yyyy'.
 
     """
-    input_data = input_data.withColumn("SalesPerQuantity", f.col("Revenue") / f.col("Quantity"))
+    # input_data = input_data.withColumn("SalesPerQuantity", f.col("Revenue") / f.col("Quantity"))
     transformed_data = input_data.withColumn("SalesPerWeight", f.col("Revenue") / f.col("Weight"))
 
     return transformed_data
