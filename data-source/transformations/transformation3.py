@@ -3,6 +3,7 @@ import sys
 import pyspark.sql.functions as f
 from pyspark.sql.functions import cast
 
+
 def main():
     # Create a Spark session
     spark = SparkSession.builder.appName("Transformation3").getOrCreate()
@@ -96,3 +97,7 @@ def transformation_3(input_data):
 def write_data(data, output_path):
     # data.repartition(1).write().mode("overwrite").csv(output_path)
     data.write.mode("overwrite").csv(output_path)
+
+
+if __name__ == "__main__":
+    main()
