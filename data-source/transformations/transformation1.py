@@ -16,7 +16,7 @@ def main():
 
     # Read data
     input_data = read_data(spark, input_path)
-    input_data.show()
+    # input_data.show()
 
     # Transformation
     transformed_data = transformation_1(input_data)
@@ -66,12 +66,12 @@ def read_data(spark, input_path):
     # df = None
     # Choose the appropriate method based on the file extension
     if input_path.lower().endswith(".json"):
-        df = spark.read.json(input_path, multiLine=True)
+        spark.read.json(input_path, multiLine=True)
     if input_path.lower().endswith(".csv"):
-        df = spark.read.csv(input_path, header=True, inferSchema=True)
+        spark.read.csv(input_path, header=True, inferSchema=True)
     if input_path.lower().endswith(".parquet"):
-        df = spark.read.parquet(input_path)
-    return df
+        spark.read.parquet(input_path)
+    return
 
 
 def transformation_1(input_data):
@@ -105,6 +105,7 @@ def pyspark_df_json_upload(df, output_format, output_path):
     """
     df.repartition(1).write.format(output_format).mode("overwrite").option("header", "true").save(output_path)
     # df.repartition(1).write.mode("overwrite").option("header", "true").csv(output_path)
+
 
 if __name__ == "__main__":
     main()
