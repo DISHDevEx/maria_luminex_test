@@ -101,28 +101,28 @@ def read_parquet_to_df(spark, bucket_folder_path):
 
 def read_data(spark, input_path):
     """
-        Reads the input file from an S3 bucket and returns a DataFrame.
+    Reads the input files from an S3 bucket folder and returns a DataFrame.
 
-        Parameters:
-        - input_path: S3 path of the input dataset
+    Parameters:
+    - spark: SparkSession instance
+    - input_path: S3 path of the input dataset (folder)
 
-        Returns:
-        - dataframe: Dataframe containing the input data.
+    Returns:
+    - dataframe: DataFrame containing the input data from all files in the folder.
     """
-    # df = None
-    spark = spark
-    # filename = "transformation4.json"
-    # input_path = input_path + '/' + filename
-    # input_path = input_path + '/' + filename
     # Choose the appropriate method based on the file extension
     if input_path.lower().endswith(".json"):
-        df = read_json_to_df(spark, input_path)
-    if input_path.lower().endswith(".csv"):
-        df = read_csv_to_df(spark, input_path)
-    if input_path.lower().endswith(".parquet"):
-        df = read_parquet_to_df(spark, input_path)
-    # df = spark.read.json(input_path, multiLine=True)
+        df = spark.read.json(input_path + "/*.json", multiLine=True)
+    elif input_path.lower().endswith(".csv"):
+        df = spark.read.csv(input_path + "/*.csv", header=True, inferSchema=True)
+    elif input_path.lower().endswith(".parquet"):
+        df = spark.read.parquet(input_path + "/*.parquet")
+    else:
+        # Handle other file types or raise an error if needed
+        raise ValueError(f"Unsupported file extension: {input_path}")
+
     return df
+
 
 
 def transformation_1(input_data):
