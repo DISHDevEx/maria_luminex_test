@@ -7,13 +7,13 @@ on:
 jobs:
   deployment:
     runs-on: ubuntu-latest
+    outputs:
+      id: ${{ steps.deploy-emr.id }}
+      value: ${{ steps.deploy-emr.outputs.deployment_error }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Checkout files
-        run: |
-          ls -l
 
       - name: Configure AWS credentials
         id: creds
@@ -37,7 +37,8 @@ jobs:
           stack-name: ${{ github.event.client_payload.inputs.stack-name }}
         run: |
           echo $stack-name &&
-          python luminex/validation/stack_name_validator.py 2> validation_error.txt || true
+          python luminex/validation/stack_name_validator.py 2>&1 | tee validation_error.log
+          echo "::set-output name=validation_error::$(cat validation_error.log)"
 
       - name: Deploy EMR cluster
         id: deploy-emr
@@ -48,14 +49,5 @@ jobs:
             --parameters file://./infrastructure/config_parameter.json \
             --role-arn \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
-            | jq -r '.StackId') 2> deployment_error.txt && echo "CloudFormation stack ID: $stack_id" || true
-
-      - name: Process Errors in Python
-        run: |
-          validation_error = open("validation_error.txt", "r").read()
-          deployment_error = open("deployment_error.txt", "r").read()
-
-          # Process validation_error and deployment_error in your Python script
-          # You can use them in your Python logic or print them for further analysis
-          print(f"Validation Error: {validation_error}")
-          print(f"Deployment Error: {deployment_error}")
+            | jq -r '.StackId') 2>&1 | tee deployment_error.log
+          echo "::set-output name=deployment_error::$(cat deployment_error.log)"
