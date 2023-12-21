@@ -110,18 +110,26 @@ def read_data(spark, input_path):
     Returns:
     - dataframe: DataFrame containing the input data from all files in the folder.
     """
+    # List files in the S3 bucket folder
+    s3_files = spark._jvm.org.apache.hadoop.fs.Path(input_path).getFileSystem(spark._jsc.hadoopConfiguration()).listStatus(spark._jvm.org.apache.hadoop.fs.Path(input_path))
+
+    # Filter files based on the file extension
+    json_files = [str(file.getPath()) for file in s3_files if str(file.getPath()).lower().endswith(".json")]
+    csv_files = [str(file.getPath()) for file in s3_files if str(file.getPath()).lower().endswith(".csv")]
+    parquet_files = [str(file.getPath()) for file in s3_files if str(file.getPath()).lower().endswith(".parquet")]
+
     # Choose the appropriate method based on the file extension
-    if input_path.lower().endswith(".json"):
-        df = spark.read.json(input_path + "/*.json", multiLine=True)
-    elif input_path.lower().endswith(".csv"):
-        df = spark.read.csv(input_path + "/*.csv", header=True, inferSchema=True)
-    elif input_path.lower().endswith(".parquet"):
-        df = spark.read.parquet(input_path + "/*.parquet")
+    if json_files:
+        df = spark.read.json(",".join(json_files), multiLine=True)
+    elif csv_files:
+        df = spark.read.csv(",".join(csv_files), header=True, inferSchema=True)
+    elif parquet_files:
+        df = spark.read.parquet(",".join(parquet_files))
     else:
-        # Handle other file types or raise an error if needed
-        raise ValueError(f"Unsupported file extension: {input_path}")
+        raise ValueError(f"No supported files found in {input_path}")
 
     return df
+
 
 
 
