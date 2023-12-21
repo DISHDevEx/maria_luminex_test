@@ -29,9 +29,6 @@ def main():
     # Write the converted data to the output path
     pyspark_df_json_upload(transformed_data, output_format, output_path)
 
-    # Rename the file in S3
-    rename_file_with_location(output_path, "transformation4.json")
-
     # Stop the Spark session
     spark.stop()
 
@@ -103,25 +100,35 @@ def read_parquet_to_df(spark, bucket_folder_path):
 
 def read_data(spark, input_path):
     """
-        Reads the input file from an S3 bucket and returns a DataFrame.
+    Reads the input files from an S3 bucket folder and returns a DataFrame.
 
-        Parameters:
-        - input_path: S3 path of the input dataset
+    Parameters:
+    - spark: SparkSession instance
+    - input_path: S3 path of the input dataset (folder)
 
-        Returns:
-        - dataframe: Dataframe containing the input data.
+    Returns:
+    - dataframe: DataFrame containing the input data from all files in the folder.
     """
-    # df = None
-    spark = spark
+    # List files in the S3 bucket folder
+    s3_files = spark._jvm.org.apache.hadoop.fs.Path(input_path).getFileSystem(spark._jsc.hadoopConfiguration()).listStatus(spark._jvm.org.apache.hadoop.fs.Path(input_path))
+
+    # Filter files based on the file extension
+    json_files = [str(file.getPath()) for file in s3_files if str(file.getPath()).lower().endswith(".json")]
+    csv_files = [str(file.getPath()) for file in s3_files if str(file.getPath()).lower().endswith(".csv")]
+    parquet_files = [str(file.getPath()) for file in s3_files if str(file.getPath()).lower().endswith(".parquet")]
+
     # Choose the appropriate method based on the file extension
-    if input_path.lower().endswith(".json"):
-        df = read_json_to_df(spark, input_path)
-    if input_path.lower().endswith(".csv"):
-        df = read_csv_to_df(spark, input_path)
-    if input_path.lower().endswith(".parquet"):
-        df = read_parquet_to_df(spark, input_path)
-    # df = spark.read.json(input_path, multiLine=True)
+    if json_files:
+        df = spark.read.json(",".join(json_files), multiLine=True)
+    elif csv_files:
+        df = spark.read.csv(",".join(csv_files), header=True, inferSchema=True)
+    elif parquet_files:
+        df = spark.read.parquet(",".join(parquet_files))
+    else:
+        raise ValueError(f"No supported files found in {input_path}")
+
     return df
+
 
 
 def transformation_4(input_data):
@@ -160,9 +167,9 @@ def pyspark_df_json_upload(df, output_format, output_path):
     output_format : format of the transformed-data
     output_path : output data stored location in s3
     """
-    filename = "transformation.json"
-    # df.repartition(1).write.format(output_format).mode("overwrite").option("header", "true").save(output_path)
-    df.coalesce(1).write.mode("overwrite").option("header", "true").json(output_path + '/' + filename)
+    # filename = "transformation.json"
+    # # df.repartition(1).write.format(output_format).mode("overwrite").option("header", "true").save(output_path)
+    # df.coalesce(1).write.mode("overwrite").option("header", "true").json(output_path + '/' + filename)
     # filename = "transformation.json"
     # full_s3_path = output_path + '/' + filename
     # df.repartition(1).write \
@@ -170,14 +177,8 @@ def pyspark_df_json_upload(df, output_format, output_path):
     #     .option("header", "true") \
     #     .json(full_s3_path)
 
-    # df.repartition(1).write.mode("overwrite").option("header", "true").save(full_s3_path, format='json')
+    df.repartition(1).write.format(output_format).mode("overwrite").option("header", "true").save(output_path)
 
-
-def rename_file_with_location(output_path, new_file_name):
-    files = os.listdir(output_path)
-    csv_file = [f for f in files if f.endswith(".csv")][0]
-    os.rename(os.path.join(output_path, csv_file), os.path.join(output_path, new_file_name))
-    print(f"File has been renamed to {os.path.join(output_path, new_file_name)}")
 
 
 if __name__ == "__main__":
