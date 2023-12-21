@@ -23,13 +23,13 @@ def main():
     transformed_data = transformation_1(input_data)
     transformed_data.show()
 
-    output_format = "csv"
+    output_format = "json"
 
     # Write the converted data to the output path
     pyspark_df_json_upload(transformed_data, output_format, output_path)
 
-    # Rename the file in S3
-    rename_file_with_location(output_path, "renamed_output.json")
+    # # Rename the file in S3
+    # rename_file_with_location(output_path, "renamed_output.json")
 
     # Stop the Spark session
     spark.stop()
@@ -111,8 +111,8 @@ def read_data(spark, input_path):
     """
     # df = None
     spark = spark
-    filename = "transformation4.json"
-    input_path = input_path + '/' + filename
+    # filename = "transformation4.json"
+    # input_path = input_path + '/' + filename
     # input_path = input_path + '/' + filename
     # Choose the appropriate method based on the file extension
     if input_path.lower().endswith(".json"):
@@ -159,11 +159,11 @@ def pyspark_df_json_upload(df, output_format, output_path):
     # df.coalesce(1).write.mode("overwrite").option("header", "true").json(output_path)
 
 
-def rename_file_with_location(output_path, new_file_name):
-    files = os.listdir(output_path)
-    csv_file = [f for f in files if f.endswith(".json")][0]
-    os.rename(os.path.join(output_path, csv_file), os.path.join(output_path, new_file_name))
-    print(f"File has been renamed to {os.path.join(output_path, new_file_name)}")
+# def rename_file_with_location(output_path, new_file_name):
+#     files = os.listdir(output_path)
+#     csv_file = [f for f in files if f.endswith(".json")][0]
+#     os.rename(os.path.join(output_path, csv_file), os.path.join(output_path, new_file_name))
+#     print(f"File has been renamed to {os.path.join(output_path, new_file_name)}")
 
 
 if __name__ == "__main__":
