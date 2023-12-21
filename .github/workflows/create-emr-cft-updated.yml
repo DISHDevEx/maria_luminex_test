@@ -2,7 +2,7 @@ name: Deploy EMR Cluster using CFT template
 
 on:
   repository_dispatch:
-    types: [create-emr-cft]
+    types: [create-emr-cft-updated]
 
 jobs:
   deployment:
@@ -37,10 +37,8 @@ jobs:
           stack-name: ${{ github.event.client_payload.inputs.stack-name }}
         run: |
           echo $stack-name &&
-          python luminex/validation/stack_name_validator.py
-        # Log an error message if the previous command fails
-        if: ${{ failure() }}
-        run: echo "Validation failed. Check the logs for details."
+          python luminex/validation/stack_name_validator.py ||
+          { echo "Validation failed. Check the logs for details."; exit 1; }
 
       - name: Deploy EMR cluster
         id: deploy-emr
@@ -52,7 +50,5 @@ jobs:
             --role-arn \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
             | jq -r '.StackId') &&
-          echo "CloudFormation stack ID: $stack_id"
-        # Log an error message if the previous command fails
-        if: ${{ failure() }}
-        run: echo "Deployment failed. Check the logs for details."
+          echo "CloudFormation stack ID: $stack_id" ||
+          { echo "Deployment failed. Check the logs for details."; exit 1; }
