@@ -2,7 +2,7 @@ name: Deploy EMR Cluster using CFT template
 
 on:
   repository_dispatch:
-    types: [create-emr-cft-updated]
+    types: [create-emr-cft]
 
 jobs:
   deployment:
@@ -28,6 +28,7 @@ jobs:
         run: pip install boto3
 
       - name: Validate Stack
+        id: validate-stack
         env:
           aws-access-key-id: ${{ github.event.client_payload.inputs.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ github.event.client_payload.inputs.AWS_SECRET_ACCESS_KEY }}
@@ -35,13 +36,14 @@ jobs:
           aws-region: ${{ github.event.inputs.AWS_Region || 'us-east-1' }}
           stack-name: ${{ github.event.client_payload.inputs.stack-name }}
         run: |
-          echo $stack-name
+          echo $stack-name &&
           python luminex/validation/stack_name_validator.py
-        # Log an error message if the previous step fails
+        # Log an error message if the previous command fails
         if: ${{ failure() }}
-        run: echo "Validation failed"
+        run: echo "Validation failed. Check the logs for details."
 
       - name: Deploy EMR cluster
+        id: deploy-emr
         run: |
           stack_id=$(aws cloudformation create-stack \
             --stack-name ${{ github.event.client_payload.inputs.stack-name }} \
@@ -49,8 +51,8 @@ jobs:
             --parameters file://./infrastructure/config_parameter.json \
             --role-arn \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
-            | jq -r '.StackId')
+            | jq -r '.StackId') &&
           echo "CloudFormation stack ID: $stack_id"
-        # Log an error message if the previous step fails
+        # Log an error message if the previous command fails
         if: ${{ failure() }}
-        run: echo "Deployment failed"
+        run: echo "Deployment failed. Check the logs for details."
