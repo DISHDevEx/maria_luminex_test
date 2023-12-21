@@ -2,6 +2,7 @@ from pyspark.sql import SparkSession
 import sys
 import pyspark.sql.functions as f
 from pyspark.sql.functions import col, cast, sum, year, month
+import os
 
 
 def main():
@@ -27,6 +28,9 @@ def main():
 
     # Write the converted data to the output path
     pyspark_df_json_upload(transformed_data, output_format, output_path)
+
+    # Rename the file in S3
+    rename_file_with_location(output_path, "transformation4.json")
 
     # Stop the Spark session
     spark.stop()
@@ -167,6 +171,13 @@ def pyspark_df_json_upload(df, output_format, output_path):
     #     .json(full_s3_path)
 
     # df.repartition(1).write.mode("overwrite").option("header", "true").save(full_s3_path, format='json')
+
+
+def rename_file_with_location(output_path, new_file_name):
+    files = os.listdir(output_path)
+    csv_file = [f for f in files if f.endswith(".csv")][0]
+    os.rename(os.path.join(output_path, csv_file), os.path.join(output_path, new_file_name))
+    print(f"File has been renamed to {os.path.join(output_path, new_file_name)}")
 
 
 if __name__ == "__main__":
