@@ -23,10 +23,8 @@ def main():
     transformed_data = transformation_3(input_data)
     transformed_data.show()
 
-    output_format = "json"
-
     # Write the converted data to the output path
-    pyspark_df_json_upload(transformed_data, output_format, output_path)
+    pyspark_df_json_upload(transformed_data, output_path)
 
     # Stop the Spark session
     spark.stop()
@@ -177,7 +175,7 @@ def transformation_3(input_data):
     return transformed_data
 
 
-def pyspark_df_json_upload(df, output_format, output_path):
+def pyspark_df_json_upload(df, output_path):
 
     """
     Converts the transformed spark dataframe to desired format and saves the output to s3 bucket.
@@ -185,7 +183,7 @@ def pyspark_df_json_upload(df, output_format, output_path):
     output_format : format of the transformed-data
     output_path : output data stored location in s3
     """
-    df.repartition(1).write.format(output_format).mode("overwrite").save(output_path)
+    df.repartition(1).write.format("json").mode("overwrite").save(output_path)
 
 
 if __name__ == "__main__":
