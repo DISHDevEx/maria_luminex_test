@@ -154,7 +154,7 @@ def transformation_4(input_data):
             - 'SalesPercentage_Category': Sales percentage for each category.
 
     """
-    transformed_data = input_data.drop('Weight')
+    transformed_data = input_data.drop('Color')
 
     return transformed_data
 

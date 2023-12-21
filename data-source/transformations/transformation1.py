@@ -131,8 +131,6 @@ def read_data(spark, input_path):
     return df
 
 
-
-
 def transformation_1(input_data):
     """
     Applies a transformation to calculate total sales for each product in a PySpark DataFrame.
@@ -164,14 +162,7 @@ def pyspark_df_json_upload(df, output_format, output_path):
     """
 
     df.repartition(1).write.format(output_format).mode("overwrite").option("header", "true").save(output_path)
-    # df.coalesce(1).write.mode("overwrite").option("header", "true").json(output_path)
 
-
-# def rename_file_with_location(output_path, new_file_name):
-#     files = os.listdir(output_path)
-#     csv_file = [f for f in files if f.endswith(".json")][0]
-#     os.rename(os.path.join(output_path, csv_file), os.path.join(output_path, new_file_name))
-#     print(f"File has been renamed to {os.path.join(output_path, new_file_name)}")
 
 
 if __name__ == "__main__":
