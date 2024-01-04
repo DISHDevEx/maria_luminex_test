@@ -48,6 +48,46 @@ jobs:
       - name: Install Boto3
         run: pip install boto3
       
+      - name: Check if S3 bucket exists
+        id: check_bucket
+        run: |
+          bucket_name=luminex-application-files
+          if aws s3api head-bucket --bucket $bucket_name 2>/dev/null; then
+            echo "Bucket $bucket_name already exists."
+            echo "::set-output name=bucket_exists::true"
+          else
+            echo "Bucket $bucket_name does not exist."
+            echo "::set-output name=bucket_exists::false"
+          fi
+
+      - name: Create S3 bucket if it doesn't exist
+        if: steps.check_bucket.outputs.bucket_exists == 'false'
+        run: |
+          bucket_name=luminex-application-files
+          aws s3api create-bucket --bucket luminex-application-files --region ${{github.event.inputs.AWS_Region || 'us-east-1'}}
+
+      - name: Check and Create 'scripts' folder
+        run: |
+          bucket_name=luminex-application-files
+          folder_key=scripts/
+          if aws s3api head-object --bucket $bucket_name --key $folder_key 2>/dev/null; then
+            echo "Folder $folder_key already exists."
+          else
+            echo "Folder $folder_key does not exist. Creating..."
+            aws s3api put-object --bucket $bucket_name --key $folder_key
+          fi
+
+      - name: Check and Create 'temp-etl-data' folder
+        run: |
+          bucket_name=luminex-application-files
+          folder_key=temp-etl-data/
+          if aws s3api head-object --bucket $bucket_name --key $folder_key 2>/dev/null; then
+            echo "Folder $folder_key already exists."
+          else
+            echo "Folder $folder_key does not exist. Creating..."
+            aws s3api put-object --bucket $bucket_name --key $folder_key
+          fi
+      
       - name: Validate Stack
         env:
           aws-access-key-id: ${{github.event.client_payload.inputs.AWS_ACCESS_KEY_ID}}

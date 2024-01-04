@@ -6,6 +6,7 @@ import time
 import boto3
 import zipfile
 from validation import IAMRoleValidator
+import os
 
 # get repo root level
 root_path = subprocess.run(
@@ -261,10 +262,12 @@ def trigger_workflow(organization, repository, workflow_name, event_type, aws_re
     response = requests.post(url, headers=headers, data=json.dumps(payload), verify=False)
 
     if response.status_code == 204:
-        print(f'Response status code: {response.status_code}, Workflow triggered successfully.')
+        print(f'Response status code: {response.status_code}, Workflow triggered successfully.Fetching Workflow Id')
+        time.sleep(20)
         latest_run_id = get_latest_workflow_run_id(organization, repository, workflow_name, token)
         if latest_run_id is not None:
-            print(f'Latest Workflow Run ID: {latest_run_id}')
+            print(f'Latest Workflow Run ID: {latest_run_id}. Getting Workflow running status' )
+            time.sleep(20)
             workflow_run_details = get_workflow_run_details(organization, repository, latest_run_id, token)
             if workflow_run_details is not None:
                 conclusion = workflow_run_details['conclusion']
