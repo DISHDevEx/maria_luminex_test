@@ -1,6 +1,7 @@
 name: Deploy EMR Cluster using CFT template
 
 on:
+  worflow_dispatch:
   repository_dispatch:
     types: [create-emr-cft]
 
