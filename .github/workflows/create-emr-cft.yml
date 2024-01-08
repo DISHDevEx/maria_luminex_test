@@ -28,6 +28,8 @@ on:
 jobs:
   deployment:
     runs-on: ubuntu-latest
+    # env:
+    #   AWS_ACCESS_KEY_ID: ${{ github.event.client_payload.inputs.AWS_ACCESS_KEY_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,8 +41,7 @@ jobs:
       - name: Set AWS credentials
         id: creds
         run: |
-          echo "::add-mask::${{ github.event.client_payload.inputs.AWS_ACCESS_KEY_ID }}"
-          echo AWS_ACCESS_KEY=$AWS_ACCESS_KEY >> $GITHUB_ENV
+          export AWS_ACCESS_KEY_ID=${{ github.event.client_payload.inputs.AWS_ACCESS_KEY_ID }}
           echo "::add-mask::${{ github.event.client_payload.inputs.AWS_ACCESS_KEY_ID }}"
           echo "AWS_SECRET_ACCESS_KEY=${{github.event.client_payload.inputs.AWS_SECRET_ACCESS_KEY}}" >> $GITHUB_ENV
           echo "AWS_SESSION_TOKEN=${{github.event.client_payload.inputs.AWS_SESSION_TOKEN}}" >> $GITHUB_ENV
