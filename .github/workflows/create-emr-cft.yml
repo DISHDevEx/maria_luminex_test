@@ -39,8 +39,7 @@ jobs:
       - name: Set AWS credentials
         id: creds
         run: |
-          AWS_ACCESS_KEY=${{ github.event.client_payload.inputs.AWS_ACCESS_KEY_ID }}
-          echo ::add-mask::$AWS_ACCESS_KEY
+          echo "::add-mask::${{ github.event.client_payload.inputs.AWS_ACCESS_KEY_ID }}"
           echo AWS_ACCESS_KEY=$AWS_ACCESS_KEY >> $GITHUB_ENV
           echo "::add-mask::${{ github.event.client_payload.inputs.AWS_ACCESS_KEY_ID }}"
           echo "AWS_SECRET_ACCESS_KEY=${{github.event.client_payload.inputs.AWS_SECRET_ACCESS_KEY}}" >> $GITHUB_ENV
