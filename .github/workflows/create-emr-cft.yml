@@ -36,14 +36,25 @@ jobs:
         run: |
           ls -l
 
-      - name: Configure AWS credentials
+      - name: Set AWS credentials
         id: creds
+        run: |
+          echo "AWS_ACCESS_KEY_ID=${{github.event.client_payload.inputs.AWS_ACCESS_KEY_ID}}" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=${{github.event.client_payload.inputs.AWS_SECRET_ACCESS_KEY}}" >> $GITHUB_ENV
+          echo "AWS_SESSION_TOKEN=${{github.event.client_payload.inputs.AWS_SESSION_TOKEN}}" >> $GITHUB_ENV
+          echo "AWS_REGION=${{github.event.inputs.AWS_Region || 'us-east-1'}}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{github.event.client_payload.inputs.AWS_ACCESS_KEY_ID}}
-          aws-secret-access-key: ${{github.event.client_payload.inputs.AWS_SECRET_ACCESS_KEY}}
-          aws-session-token: ${{github.event.client_payload.inputs.AWS_SESSION_TOKEN}}
-          aws-region: ${{github.event.inputs.AWS_Region || 'us-east-1'}}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Install Boto3
+        run: pip install boto3
 
       - name: Install Boto3
         run: pip install boto3
@@ -90,12 +101,16 @@ jobs:
       
       - name: Validate Stack
         env:
-          aws-access-key-id: ${{github.event.client_payload.inputs.AWS_ACCESS_KEY_ID}}
-          aws-secret-access-key: ${{github.event.client_payload.inputs.AWS_SECRET_ACCESS_KEY}}
-          aws-session-token: ${{github.event.client_payload.inputs.AWS_SESSION_TOKEN}}
-          aws-region: ${{github.event.inputs.AWS_Region || 'us-east-1'}}
-          stack-name: ${{github.event.client_payload.inputs.stack-name}}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          stack-name: ${{ github.event.client_payload.inputs.stack-name }}
         run: |
+          # Mask AWS credentials in the logs
+          echo "::add-mask::$aws-access-key-id"
+          echo "::add-mask::$aws-secret-access-key"
+          echo "::add-mask::$aws-session-token"
           echo $stack-name
           python luminex/validation/stack_name_validator.py
       
